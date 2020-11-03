@@ -1,0 +1,148 @@
+{% extends 'inv/base.html' %}
+{% block title %} All Results {% endblock %}
+{% block body %}
+
+  
+{% comment %} <div class="button-group"> {% endcomment %}
+
+{% comment %} <a href="{% url 'display_item_status' %}" class="btn btn-primary btn-md" role="button">Item Status</a>
+<a href="{% url 'add_item' %}" class="btn btn-warning btn-sd" role="button">+</a>
+<a href="{% url 'display_sales_record' %}" class="btn btn-primary btn-md" role="button">Sales Record</a>
+<a href="{% url 'add_sales_record' %}" class="btn btn-warning btn-sd" role="button">+</a>
+<a href="{% url 'display_reorder' %}" class="btn btn-primary btn-md" role="button">Re-order</a>
+<a href="{% url 'add_reorder' %}" class="btn btn-warning btn-sd" role="button">+</a>
+<a href="{% url 'display_supplier' %}" class="btn btn-primary btn-md" role="button">Supplier</a>
+<a href="{% url 'add_supplier' %}" class="btn btn-warning btn-sd" role="button">+</a>
+<a href="{% url 'display_staff_member' %}" class="btn btn-primary btn-md" role="button">Staff</a> {% endcomment %}
+{% comment %} <a href="{% url 'add_staff_member' %}" class="btn btn-warning btn-sd" role="button">+</a> {% endcomment %}
+
+
+{% comment %} </div> {% endcomment %}
+<section>
+ <div class="section-body">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+      <div class="card-head style-primary">
+      {% if header == None %}
+      <header>Table</header>
+      {% else%}
+<header>{{ header }}</header>
+{% endif %}
+<div class="tools">
+    <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+    <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+</div>
+        </div>
+        
+        <div class="card-body">
+        <div class="table-responsive">
+<table id="datatable2" class="table order-column hover">
+<thead>
+<tr>
+{% comment %} <th>item_code</th>
+<th>item_name</th>
+<th>type</th>
+<th>price</th>
+<th>status</th>
+<th>item_quantity_available</th>
+<th>issues</th> {% endcomment %}
+{% for item in list%}
+<th>{{ item }}</th>
+{% endfor %}
+
+</tr>
+</thead>
+<tbody>
+
+{% for item in items1%}
+<tr class="gradeX">
+<td>{{ item.item_code }}</td>
+<td>{{ item.item_name }}</td>
+<td>{{ item.type }}</td>
+<td>{{ item.price}}</td>
+<td>{{ item.status}}</td>
+<td>{{ item.item_quantity_available}}</td>
+<td>{{ item.issues}}</td>
+   <td>
+            <a href="{% url 'edit_item_status' item.item_code %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            <a href="{% url 'delete_item_status' item.item_code %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
+        </td>
+</tr>
+{% endfor %}
+
+{% for item in items2%}
+<tr class="gradeX">
+<td>{{ item.supplier_id }}</td>
+<td>{{ item.supplier_name }}</td>
+<td>{{ item.supplier_phone }}</td>
+    <td>
+            <a href="{% url 'edit_supplier' item.supplier_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            <a href="{% url 'delete_supplier' item.supplier_id %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
+        </td>
+</tr>
+
+{% endfor %}
+
+{% for item in items3%}
+<tr class="gradeX">
+<td>{{ item.id }}</td>
+<td>{{ item.username }}</td>
+<td>{{ item.password }}</td>
+    {% comment %} <td>
+            <a href="{% url 'edit_staff_member' item.id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            <a href="{% url 'delete_staff_member' item.id %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
+        </td> {% endcomment %}
+</tr>
+{% endfor %}
+{% for item in items4%}
+<tr class="gradeX">
+<td>{{ item.record_id }}</td>
+<td>{{ item.item_quantity_before_sales }}</td>
+<td>{{ item.item_quantity_sold }}</td>
+<td>{{ item.item_quantity_after_sales }}</td>
+<td>{{ item.date_sold }}</td>
+<td>{{ item.item_code }}</td>
+<td>{{ item.item_code__item_quantity_available}}</td>
+
+    <td>
+            <a href="{% url 'edit_sales_record' item.record_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+           </td>
+           <td>
+            <a href="{% url 'delete_sales_record' item.record_id %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
+        </td>
+        </tr>
+{% endfor %}
+
+{% for item in items5%}
+<tr class="gradeX">
+<td>{{ item.order_id }}</td>
+<td>{{ item.date_reorder }}</td>
+<td>{{ item.quantity_reorder }}</td>
+<td>{{ item.date_of_receive }}</td>
+<td>{{ item.quantity_receive }}</td>
+<td>{{ item.item_code }}</td>
+<td>{{ item.supplier }}</td>
+<td>{{ item.remarks }}</td>
+<td>{{ item.item_code__item_quantity_available}}</td>
+    <td>
+            <a href="{% url 'edit_reorder' item.order_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+               </td>
+                 <td>
+            <a href="{% url 'delete_reorder' item.order_id %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
+      </td>
+
+     </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+</section>
+
+{% endblock %}
