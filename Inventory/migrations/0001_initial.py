@@ -46,8 +46,8 @@ class Migration(migrations.Migration):
                 ('record_id', models.AutoField(primary_key=True, serialize=False, unique=True)),
                 ('item_quantity_sold', models.IntegerField()),
                 ('date_sold', models.DateTimeField(auto_now_add=True)),
-                ('item_code', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.item_status')),
-                ('staff', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.staff_member')),
+                ('item_code', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='Inventory.item_status')),
+                ('staff', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='Inventory.staff_member')),
             ],
         ),
         migrations.CreateModel(
@@ -59,9 +59,9 @@ class Migration(migrations.Migration):
                 ('date_of_receive', models.DateTimeField(blank=True, null=True)),
                 ('quantity_receive', models.IntegerField(blank=True, null=True)),
                 ('remarks', models.CharField(default='No issue', max_length=100)),
-                ('item_code', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.item_status')),
-                ('staff', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.staff_member')),
-                ('supplier', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.supplier')),
+                ('item_code', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='Inventory.item_status')),
+                ('staff', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='Inventory.staff_member')),
+                ('supplier', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='Inventory.supplier')),
             ],
         ),
     ]
