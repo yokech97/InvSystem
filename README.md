@@ -1,1 +1,1 @@
-# Inventory"# inventories" 
+# Inventory"
