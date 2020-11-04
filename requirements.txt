@@ -79,6 +79,7 @@ future==0.18.2
 gevent==1.5.0
 gevent-websocket==0.10.1
 greenlet==0.4.15
+gunicorn==20.0.4
 html2text==2020.1.16
 html5lib==1.0.1
 idna==2.8
@@ -154,6 +155,7 @@ PyPDF2==1.26.0
 pyrsistent==0.16.0
 python-dateutil==2.8.1
 pytz==2019.3
+pywin32==227
 pywin32-ctypes==0.2.0
 pywinpty==0.5.7
 PyYAML==5.3.1

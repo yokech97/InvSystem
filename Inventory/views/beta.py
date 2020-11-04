@@ -15,12 +15,12 @@ import matplotlib.pyplot as plt
 import matplotlib
 import datetime as dt
 from django.contrib.auth.decorators import login_required
-from inventory.models import *
+from Inventory.models import *
 # import plotly.plotly as py
 from plotly.offline import plot
 import plotly.graph_objects as go
 # import plotly.express as px
-from inventory.forms import *
+from Inventory.forms import *
 
 @login_required
 def index(request):
