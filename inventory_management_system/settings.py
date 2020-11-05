@@ -79,13 +79,16 @@ WSGI_APPLICATION = 'inventory_management_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+import dj_database_url
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    "default": dj_database_url.config(conn_max_age=600, default="sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3"))
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -123,9 +126,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-import dj_database_url
-db_from_env=dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+# import dj_database_url
+# db_from_env=dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'login'
 STATIC_URL ='/static/'
