@@ -80,7 +80,12 @@ def add_item(request, cls):
 
         if form.is_valid():
             if form.save():
-                return redirect('/', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                if cls==item_statusForm:
+                    return redirect('/item', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                if cls ==SupplierForm:
+                    return redirect('/supplier', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                if cls == Sales_recordForm:
+                    return redirect('/sales', messages.success(request, 'Order was successfully created.', 'alert-success'))
             else:
                 return redirect('/', messages.error(request, 'Data is not saved', 'alert-danger'))
         else:
@@ -127,7 +132,7 @@ def add_reorder(request):
         form = ReorderForm(request.POST)
         if form.is_valid():
             if form.save():
-                return redirect('/', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                return redirect('/reorder', messages.success(request, 'Order was successfully created.', 'alert-success'))
             else:
                 return redirect('/', messages.error(request, 'Data is not saved', 'alert-danger'))
         else:
