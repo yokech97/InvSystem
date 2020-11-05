@@ -7,23 +7,23 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Inventory', '0003_auto_20200609_2326'),
+        ('inventory', '0003_auto_20200609_2326'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='reorder',
             name='item_code',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='items', to='Inventory.item_status'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='items', to='inventory.item_status'),
         ),
         migrations.AlterField(
             model_name='reorder',
             name='supplier',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='supplier', to='Inventory.supplier'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='supplier', to='inventory.supplier'),
         ),
         migrations.AlterField(
             model_name='sales_record',
             name='item_code',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='item', to='Inventory.item_status'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='item', to='inventory.item_status'),
         ),
     ]
