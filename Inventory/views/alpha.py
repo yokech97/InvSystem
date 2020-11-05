@@ -10,9 +10,9 @@ from django.db import transaction
 
 # Create your views here.
 
-from Inventory.models import *
+from inventory.models import *
 
-from Inventory.forms import *
+from inventory.forms import *
 
 
 @login_required
