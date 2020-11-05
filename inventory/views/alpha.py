@@ -248,31 +248,18 @@ def edit_reorder(request, pk):
 
 def delete_item_status(request, pk):
 
-    template = 'inv/index.html'
+    
     item_status.objects.filter(item_code=pk).delete()
 
-    items = item_status.objects.all()
-
-    context = {
-        'items': items,
-    }
-
-    return render(request, template, context)
+    return redirect('/item', messages.success(request, 'Record was successfully deleted.', 'alert-success'))
 
 
 def delete_supplier(request, pk):
 
-    template = 'inv/index.html'
+    
     supplier.objects.filter(supplier_id=pk).delete()
 
-    items = supplier.objects.all()
-
-    context = {
-        'items': items,
-    }
-
-    return render(request, template, context)
-
+    return redirect('/supplier', messages.success(request, 'Record was successfully deleted.', 'alert-success'))
 
 # def delete_staff_member(request, pk):
 
@@ -290,29 +277,19 @@ def delete_supplier(request, pk):
 
 def delete_sales_record(request, pk):
 
-    template = 'inv/index.html'
+    
     sales_record.objects.filter(record_id=pk).delete()
 
-    items = sales_record.objects.all()
+    # items = sales_record.objects.all()
 
-    context = {
-        'items': items,
-    }
-
-    return render(request, template, context)
+    redirect('/sales', messages.success(request, 'Record was successfully deleted.', 'alert-success'))
 
 def delete_reorder(request, pk):
 
-    template = 'inv/index.html'
+    
     reorder.objects.filter(order_id=pk).delete()
 
-    items = reorder.objects.all()
-
-    context = {
-        'items': items,
-    }
-
-    return render(request, template, context)
+    return redirect('/reorder', messages.success(request, 'Record was successfully deleted.', 'alert-success'))
 
  
 @login_required

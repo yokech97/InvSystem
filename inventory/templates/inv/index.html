@@ -66,6 +66,8 @@
 <td>{{ item.issues}}</td>
    <td>
             <a href="{% url 'edit_item_status' item.item_code %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            </td>
+            <td>
             <a href="{% url 'delete_item_status' item.item_code %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
         </td>
 </tr>
@@ -78,6 +80,8 @@
 <td>{{ item.supplier_phone }}</td>
     <td>
             <a href="{% url 'edit_supplier' item.supplier_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            </td>
+            <td>
             <a href="{% url 'delete_supplier' item.supplier_id %}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" > x</a>
         </td>
 </tr>
