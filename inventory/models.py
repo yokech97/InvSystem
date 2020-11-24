@@ -33,6 +33,8 @@ class sales_record(models.Model):
     item_quantity_after_sales=models.IntegerField(null=True)
     item_code=models.ForeignKey(item_status,blank=True,null=True, on_delete=models.SET_NULL ,related_name='salesitem')
     date_sold=models.DateField(auto_now_add=True)
+
+      
     
     # staff=models.ForeignKey(staff_member,blank=False,null=True,on_delete=models.SET_NULL)
     # def __unicode__(self):

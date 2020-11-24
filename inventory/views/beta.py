@@ -54,17 +54,23 @@ def index(request):
     sales.drop(cols, axis=1, inplace=True)
 
     sales['date_sold'] = pd.to_datetime(sales['date_sold'],format='%Y/%m/%d')
-    
-
+    max_year=pd.DataFrame.from_records(sales_record.objects.filter(item_code=data).values('date_sold','record_id').latest('date_sold'),index=[0])
+    max_year['date_sold']=pd.to_datetime(max_year['date_sold'],format='%Y/%m/%d')
+    max_year['year']=max_year['date_sold'].dt.year
+    max_year=max_year.reset_index()
     sales = sales.reset_index()
     sales = sales.set_index('date_sold')
     
     # print(sales.index)
     y = sales
+    # for x in max_year['year']:
+    #     year=max_year['year']
+        # if max_year['year']!=year:
+        #     return year
+    # w=y['2015-1':'2015-12']
+    # print(max_year)
 
-    x=y['2014-1':'2014-12']
-    w=y['2015-1':'2015-12']
-    z=y['2016-1':'2016-12']
+    z=y[str(max_year['year'][0]):]
     # h = sales['item_quantity_sold'].resample('MS').mean()
     
     # layout=go.Layout(title={
@@ -88,8 +94,8 @@ def index(request):
     # plt.show()
 
 
-    train=pd.DataFrame({'date_sold':x.index,'item_quantity_sold':x['item_quantity_sold'],'item_quantity_before_sales':x['item_quantity_before_sales'],'item_quantity_after_sales':x['item_quantity_after_sales']})
-    validation=pd.DataFrame({'date_sold':w.index,'item_quantity_sold':w['item_quantity_sold'],'item_quantity_before_sales':w['item_quantity_before_sales'],'item_quantity_after_sales':w['item_quantity_after_sales']})
+    train=pd.DataFrame({'date_sold':y.index,'item_quantity_sold':y['item_quantity_sold'],'item_quantity_before_sales':y['item_quantity_before_sales'],'item_quantity_after_sales':y['item_quantity_after_sales']})
+    # validation=pd.DataFrame({'date_sold':w.index,'item_quantity_sold':w['item_quantity_sold'],'item_quantity_before_sales':w['item_quantity_before_sales'],'item_quantity_after_sales':w['item_quantity_after_sales']})
     test=pd.DataFrame({'date_sold':z.index,'item_quantity_sold':z['item_quantity_sold'],'item_quantity_before_sales':z['item_quantity_before_sales'],'item_quantity_after_sales':z['item_quantity_after_sales']})
     
     X_train = train.drop(columns=['item_quantity_sold'])
@@ -102,9 +108,9 @@ def index(request):
     X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
 
 
-    X_valid = validation.drop(columns=['item_quantity_sold'])
-    y_valid = validation['item_quantity_sold'].values
-    X_valid['date_sold']=X_valid['date_sold'].map(dt.datetime.toordinal)
+    # X_valid = validation.drop(columns=['item_quantity_sold'])
+    # y_valid = validation['item_quantity_sold'].values
+    # X_valid['date_sold']=X_valid['date_sold'].map(dt.datetime.toordinal)
 
 
 
@@ -125,7 +131,7 @@ def index(request):
 
     # print('\n\nPredict target on the validation data in 2015')
     # model_pipeline.fit(X_valid,y_valid)
-    pred_valid_rf = mp.predict(X_valid)
+    # pred_valid_rf = mp.predict(X_valid)
     # print(pred_valid_rf)
     # print(np.sqrt(mean_squared_error(y_valid,pred_valid_rf)))
     # print(r2_score(y_valid, pred_valid_rf))

@@ -77,7 +77,7 @@ def display_reorder(request):
 def add_item(request, cls):
     if request.method == "POST":
         form = cls(request.POST)
-
+        a=request.POST.getlist('item_code')
         if form.is_valid():
             if form.save():
                 if cls==item_statusForm:
@@ -85,6 +85,21 @@ def add_item(request, cls):
                 if cls ==SupplierForm:
                     return redirect('/supplier', messages.success(request, 'Order was successfully created.', 'alert-success'))
                 if cls == Sales_recordForm:
+                    
+
+                    e=sales_record.objects.last()
+                    b= item_status.objects.get(pk=a[0])
+                    c=b.item_quantity_available
+
+                    h=e.item_quantity_sold
+                    e.item_quantity_before_sales=c
+                    e.item_quantity_after_sales=c-h
+                    b.item_quantity_available = c-h
+                    b.save()
+                    e.save()
+                    
+
+
                     return redirect('/sales', messages.success(request, 'Order was successfully created.', 'alert-success'))
             else:
                 return redirect('/', messages.error(request, 'Data is not saved', 'alert-danger'))
@@ -130,13 +145,23 @@ def add_sales_record(request):
 def add_reorder(request):
     if request.method == "POST":
         form = ReorderForm(request.POST)
+        a=request.POST.getlist('item_code')
         if form.is_valid():
             if form.save():
-                return redirect('/reorder', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                    e=reorder.objects.last()
+                    b= item_status.objects.get(pk=a[0])
+                    c=b.item_quantity_available
+                    h=e.quantity_receive
+                    if h == None:
+                        return redirect('/reorder', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                    else:
+                        b.item_quantity_available=c+h
+                        b.save()
+                        return redirect('/reorder', messages.success(request, 'Order was successfully created.', 'alert-success'))
             else:
-                return redirect('/', messages.error(request, 'Data is not saved', 'alert-danger'))
+                return redirect('/reorder', messages.error(request, 'Data is not saved', 'alert-danger'))
         else:
-            return redirect('/', messages.error(request, 'Form is not valid', 'alert-danger'))
+            return redirect('/reorder', messages.error(request, 'Form is not valid', 'alert-danger'))
     else:
         form = ReorderForm()
         return render(request, 'inv/add_new_reorder.html', {'form':form, 'header':'Re-order',})
@@ -158,16 +183,45 @@ def edit_item(request, pk, model, cls):
                 with transaction.atomic():
                     af= sales_record.objects.get(pk=pk)
                     after=af.item_quantity_sold
+                    quantitybeforesales=af.item_quantity_before_sales
+                    quantityaftersales=af.item_quantity_after_sales
                     x= item_status.objects.get(item_code=getattr(af.item_code,'item_code'))
                     new=x.item_quantity_available
+
                     if before>after:
                         value=before-after
                         x.item_quantity_available=new+value
                         x.save()
+                        if quantityaftersales==None and quantitybeforesales==None:
+                            af.item_quantity_after_sales=new+value
+                            af.item_quantity_before_sales=None
+                            af.save()
+                        if quantitybeforesales==None and quantityaftersales!=None:
+                            af.item_quantity_before_sales=new
+                            af.item_quantity_after_sales=new+value
+                            af.save()    
+                        if quantitybeforesales!=None and quantityaftersales!=None:
+                            af.item_quantity_before_sales=new
+                            af.item_quantity_after_sales=new+value
+                            af.save() 
+
                     else:
                         value=after-before
                         x.item_quantity_available=new-value
                         x.save()
+                        if quantityaftersales==None and quantitybeforesales==None:
+                            af.item_quantity_after_sales=new-value
+                            af.item_quantity_before_sales=None
+                            af.save()
+                        if quantitybeforesales==None and quantityaftersales!=None:
+                            af.item_quantity_before_sales=new
+                            af.item_quantity_after_sales=new-value
+                            af.save()    
+                        if quantitybeforesales!=None and quantityaftersales!=None:
+                            af.item_quantity_before_sales=new
+                            af.item_quantity_after_sales=new-value
+                            af.save() 
+
                 return redirect('/sales', messages.success(request, 'Order was successfully updated.', 'alert-success'))
                 
                 
@@ -224,6 +278,11 @@ def edit_reorder(request, pk):
                     after=af.quantity_receive
                     x= item_status.objects.get(item_code=getattr(af.item_code,'item_code'))
                     new=x.item_quantity_available
+                    if before == None:
+                        value = after
+                        x.item_quantity_available=new+after
+                        x.save()
+                        return redirect('/reorder', messages.success(request, 'Order was successfully updated.', 'alert-success'))
                     if before>after:
                         value=before-after
                         x.item_quantity_available=new+value
@@ -282,7 +341,7 @@ def delete_sales_record(request, pk):
 
     # items = sales_record.objects.all()
 
-    redirect('/sales', messages.success(request, 'Record was successfully deleted.', 'alert-success'))
+    return redirect('/sales', messages.success(request, 'Record was successfully deleted.', 'alert-success'))
 
 def delete_reorder(request, pk):
 
