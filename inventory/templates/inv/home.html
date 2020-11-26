@@ -18,7 +18,7 @@
 {% comment %} <a href="{% url 'add_staff_member' %}" class="btn btn-warning btn-sd" role="button">+</a> {% endcomment %}
 
 
-{% comment %} </div> {% endcomment %}
+
 <section>
     <div class="section-body">
       <div class="row">
@@ -31,7 +31,189 @@
                         <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
                   </div>
               </div>
+
+
             <div class="card-body">
+            <div class="table-responsive">
+                  
+      <body>
+
+      <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row">
+            <div class="col-xl-2 col-lg-4">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Revenue</h5>
+                      <span class="h2 font-weight-bold mb-0">RM {{ profit }}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                        <i class="fas fa-chart-bar"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-3 mb-0 text-muted text-sm">
+                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ percent }}%</span>
+                    <span class="text-nowrap">Since last month</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-2 col-lg-4">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">BLABLABLA</h5>
+                      <span class="h2 font-weight-bold mb-0">0000</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                        <i class="fas fa-chart-pie"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-3 mb-0 text-muted text-sm">
+                    <span class="text-danger mr-2"><i class="fa fa-arrow-down"></i> 0%</span>
+                    <span class="text-nowrap">Since last week</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-2 col-lg-4">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">BLABLABLA</h5>
+                      <span class="h2 font-weight-bold mb-0">0000</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
+                        {% comment %} <i class="fa fa-users"></i> {% endcomment %}
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-3 mb-0 text-muted text-sm">
+                    <span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> 0%</span>
+                    <span class="text-nowrap">Since yesterday</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            {% comment %} <div class="col-xl-3 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Performance</h5>
+                      <span class="h2 font-weight-bold mb-0">49,65%</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                        <i class="fas fa-percent"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-3 mb-0 text-muted text-sm">
+                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 12%</span>
+                    <span class="text-nowrap">Since last month</span>
+                  </p>
+                </div>
+              </div>
+            </div> {% endcomment %}
+
+
+
+
+          </div>
+        </div>
+      </div>
+
+        </body>
+              
+            </div>
+            </div>
+            </div>
+      </div>
+        </div> 
+      </div>
+
+</section>
+
+
+    <section>
+    <div class="section-body">
+      <div class="row">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Generate Report</header>
+
+              </div>
+
+              
+            <div class="card-body">
+            <div class="table-responsive">
+                  
+      <body>
+
+      <div class="container-fluid">
+        <div class="header-body">
+  {% autoescape off %}
+  
+      <div class="row">
+        <div class="col-md-4">
+        	<form class="form" role="form" action="{% url 'report' %}"method="post">
+          {% comment %} <form class="form" role="form" action=""method="post"> {% endcomment %}
+            {% csrf_token %}
+                <div class="form-group floating-label">
+                    <h2 class="card-title text-uppercase text-muted mb-0">Generate Report</h2>
+                    {{ form.post | add_class:'form-control' }}
+                </div>
+                <br>
+            <button type="submit">Submit</button>
+          </form>
+          <h2>{{ data }}</h2>
+          
+        </div>
+
+               {% endautoescape %}
+          </div>
+      </div>
+      </div>
+      </body>
+            </div>
+             </div>
+              </div>
+              </div>
+            </div>
+          </div>
+      </div>
+</section>
+
+{% comment %} 
+<section>
+
+    <div class="section-body">
+      <div class="row">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-head style-primary">
+                <header>Dashboard</header>
+                  <div class="tools">
+                        <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+                        <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+                  </div>
+              </div>
+
+
+
+        <div class="card-body">
             <div class="table-responsive">
                   
       <body>
@@ -63,6 +245,6 @@
         </div>
       </div>
 
-</section>
+</section>  {% endcomment %}
 
 {% endblock %}
