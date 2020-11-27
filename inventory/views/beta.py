@@ -74,7 +74,7 @@ def index(request):
 
 @login_required
 def report(request):
-
+    import datetime as dt
     matplotlib.rcParams['axes.labelsize'] = 14
     matplotlib.rcParams['xtick.labelsize'] = 12
     matplotlib.rcParams['ytick.labelsize'] = 12
@@ -106,7 +106,7 @@ def report(request):
     sales['date_sold'] = pd.to_datetime(sales['date_sold'],format='%Y/%m/%d')
     max_year=pd.DataFrame.from_records(sales_record.objects.filter(item_code=data).values('date_sold','record_id').latest('date_sold'),index=[0])
     max_year['date_sold']=pd.to_datetime(max_year['date_sold'],format='%Y/%m/%d')
-    max_year['year']=max_year['date_sold'].datetime.year
+    max_year['year']=max_year['date_sold'].dt.year
     max_year=max_year.reset_index()
     sales = sales.reset_index()
     sales = sales.set_index('date_sold')
@@ -150,12 +150,12 @@ def report(request):
     
     X_train = train.drop(columns=['item_quantity_sold'])
     y_train = train['item_quantity_sold'].values
-    X_train['date_sold']=X_train['date_sold'].map(datetime.datetime.toordinal)
+    X_train['date_sold']=X_train['date_sold'].map(dt.datetime.toordinal)
 
 
     X_test = test.drop(columns=['item_quantity_sold'])
     y_test = test['item_quantity_sold'].values
-    X_test['date_sold']=X_test['date_sold'].map(datetime.datetime.toordinal)
+    X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
 
 
     # X_valid = validation.drop(columns=['item_quantity_sold'])
