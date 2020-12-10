@@ -18,7 +18,7 @@ from inventory.forms import *
 @login_required
 def display_item_status(request):
     items = item_status.objects.all()
-    itemlist=['item_code','item_name','type','price','status','item_quantity_available','issues']
+    itemlist=['item_code','item_name','type','retail_price','stock_price','status','item_quantity_available','issues']
     context={
         'list' : itemlist,
         'header': 'Item Status',
@@ -232,7 +232,7 @@ def edit_item(request, pk, model, cls):
     else:
         form = cls(instance=item)
 
-        return render(request, 'inv/edit_item.html', {'form': form})
+    return render(request, 'inv/edit_item.html', {'form': form})
 
 
 @login_required

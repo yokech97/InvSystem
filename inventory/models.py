@@ -7,7 +7,8 @@ class item_status(models.Model):
     # item_code=models.CharField(max_length=30,unique=True,primary_key=True,blank=False)
     item_name=models.CharField(max_length=50,blank=True)
     type= models.CharField(max_length=100,blank=True)  
-    price=models.FloatField()
+    retail_price=models.FloatField()
+    stock_price=models.FloatField(null=True)
     choices =({'AVAILABLE','Item ready to be purchased'},{'SOLD','Item Sold'},{'RESTOCKING','Item restocking in few days'})
     status=models.CharField(max_length=50,choices=choices,default="AVAILABLE") #Available,Sold, Restocking
     item_quantity_available=models.IntegerField()

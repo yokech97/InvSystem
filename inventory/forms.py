@@ -27,7 +27,7 @@ class HomeForm(forms.ModelForm):
 class item_statusForm(forms.ModelForm):
     class Meta:
         model = item_status
-        fields = ('item_code', 'item_name', 'type', 'price','status','item_quantity_available','issues',)
+        fields = ('item_code', 'item_name', 'type', 'retail_price','stock_price','status','item_quantity_available','issues',)
 
 
 class SupplierForm(forms.ModelForm):

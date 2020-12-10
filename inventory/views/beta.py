@@ -41,24 +41,35 @@ def index(request):
     # thismonth =datetime.now().month
     solditem=pd.DataFrame.from_records(sales_record.objects.filter(date_sold__year=year,date_sold__month=month).values('item_quantity_sold','item_code'))
     lastmonthsolditem=pd.DataFrame.from_records(sales_record.objects.filter(date_sold__year=last_year,date_sold__month=last_month).values('item_quantity_sold','item_code'))
-    item=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','price'))
+    item=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','retail_price'))
+    stockitem=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','stock_price'))
     # item=item.reset_index()
     # item=item.set_index('item_code')
     profit=0
     lastprofit=0
     for ind in solditem.index:
-        price=item.loc[item['item_code'] == solditem['item_code'][ind], 'price'].iloc[0]
+        retail_price=item.loc[item['item_code'] == solditem['item_code'][ind], 'retail_price'].iloc[0]
+        stock_price=stockitem.loc[stockitem['item_code'] == solditem['item_code'][ind], 'stock_price'].iloc[0]
+        gain=retail_price-stock_price
         if lastmonthsolditem.empty:
-            lastprice=0
+            continue
+
         else:
-            lastprice=item.loc[item['item_code'] == lastmonthsolditem['item_code'][ind], 'price'].iloc[0]
+            lastprice=item.loc[item['item_code'] == lastmonthsolditem['item_code'][ind], 'retail_price'].iloc[0]
+            laststockprice=stockitem.loc[stockitem['item_code'] == lastmonthsolditem['item_code'][ind], 'stock_price'].iloc[0]
             lastsold=lastmonthsolditem['item_quantity_sold'][ind]
-            lastgain=lastprice*lastsold
+            lastmonthprofit=lastprice-laststockprice
+            lastgain=lastmonthprofit*lastsold
             lastprofit+=lastgain
         sold=solditem['item_quantity_sold'][ind]
-        gain=price*sold
+        gain=gain*sold
         profit+=gain
     percent=(profit-lastprofit)/100
+    indicator=None
+    if percent<0:
+        indicator=False
+    else:
+        indicator=True
 
 
 
@@ -67,7 +78,8 @@ def index(request):
         'form': form,
         'data':data,
         'profit':profit,
-        'percent':percent
+        'percent':percent,
+        'indicator':indicator
     }
 
     return render(request, 'inv/home.html',context)
