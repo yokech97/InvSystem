@@ -43,14 +43,37 @@ def index(request):
     lastmonthsolditem=pd.DataFrame.from_records(sales_record.objects.filter(date_sold__year=last_year,date_sold__month=last_month).values('item_quantity_sold','item_code'))
     item=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','retail_price'))
     stockitem=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','stock_price'))
+    quantity_reorder=pd.DataFrame.from_records(reorder.objects.filter(date_reorder__year=year,date_reorder__month=month).values('quantity_reorder','item_code'))
+    lastmonthquantity_reorder=pd.DataFrame.from_records(reorder.objects.filter(date_reorder__year=last_year,date_reorder__month=last_month).values('quantity_reorder','item_code'))
+    receive_date=pd.DataFrame.from_records(reorder.objects.filter(date_reorder__year=year,date_reorder__month=month).values('date_of_receive','item_code'))
+    receive_quantity=pd.DataFrame.from_records(reorder.objects.filter(date_reorder__year=year,date_reorder__month=month).values('quantity_receive','item_code'))
+    
     # item=item.reset_index()
     # item=item.set_index('item_code')
     profit=0
     lastprofit=0
+    cost=0
+    lastcost=0
+    for ind in quantity_reorder.index:
+        stock_price=stockitem.loc[stockitem['item_code'] == quantity_reorder['item_code'][ind], 'stock_price'].iloc[0]
+        reorderval=quantity_reorder['quantity_reorder'][ind]
+        reordervalue=reorderval*stock_price
+        cost=+reordervalue
+    for ind in lastmonthquantity_reorder.index:
+        stock_price=stockitem.loc[stockitem['item_code'] == lastmonthquantity_reorder['item_code'][ind], 'stock_price'].iloc[0]
+        reorderval=lastmonthquantity_reorder['quantity_reorder'][ind]
+        reordervalue=reorderval*stock_price
+        lastcost=+reordervalue
+        
     for ind in solditem.index:
         retail_price=item.loc[item['item_code'] == solditem['item_code'][ind], 'retail_price'].iloc[0]
         stock_price=stockitem.loc[stockitem['item_code'] == solditem['item_code'][ind], 'stock_price'].iloc[0]
         gain=retail_price-stock_price
+        sold=solditem['item_quantity_sold'][ind]
+        gain=gain*sold
+        profit+=gain
+        
+    for ind in lastmonthsolditem.index:
         if lastmonthsolditem.empty:
             continue
 
@@ -61,9 +84,16 @@ def index(request):
             lastmonthprofit=lastprice-laststockprice
             lastgain=lastmonthprofit*lastsold
             lastprofit+=lastgain
-        sold=solditem['item_quantity_sold'][ind]
-        gain=gain*sold
-        profit+=gain
+    profit=profit-cost
+    lastmonthprofit=lastmonthprofit-lastcost
+
+    # cost_percent=(cost-lastcost)/100
+    # cost_indicator=None
+    # if cost_percent<0:
+    #     cost_indicator=False
+    # else:
+    #     cost_indicator=True
+
     percent=(profit-lastprofit)/100
     indicator=None
     if percent<0:
@@ -79,7 +109,10 @@ def index(request):
         'data':data,
         'profit':profit,
         'percent':percent,
-        'indicator':indicator
+        'indicator':indicator,
+        # 'cost_percent':cost_percent,
+        # 'cost_indicator':cost_indicator,
+        'cost':cost
     }
 
     return render(request, 'inv/home.html',context)
