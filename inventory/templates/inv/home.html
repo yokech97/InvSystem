@@ -47,7 +47,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Revenue</h5>
+                      <h2 class="card-title">Revenue</h2>
                       <span class="h2 font-weight-bold mb-0">RM {{ profit }}</span>
                     </div>
                     <div class="col-auto">
@@ -76,7 +76,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Reorder Cost</h5>
+                      <h2 class="card-title ">Reorder Cost</h2>
                       <span class="h2 font-weight-bold mb-0">RM {{ cost }}</span>
                     </div>
                     {% comment %} <div class="col-auto">
@@ -106,7 +106,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">BLABLABLA</h5>
+                      <h2 class="card-title">BLABLABLA</h2>
                       <span class="h2 font-weight-bold mb-0">0000</span>
                     </div>
                     <div class="col-auto">
@@ -123,36 +123,55 @@
               </div>
             </div>
 
-           <div class="col-xl-3 col-lg-6">
-              {% comment %} <div class="card card-stats mb-4 mb-xl-0"> {% endcomment %}
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">BLABLABLA</h5>
-                      <span class="h2 font-weight-bold mb-0">0000</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                        {% comment %} <i class="fa fa-users"></i> {% endcomment %}
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-muted text-sm">
-                    <span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> 0%</span>
-                    <span class="text-nowrap">Since yesterday</span>
-                  </p>
-                </div>
-              {% comment %} </div> {% endcomment %}
-            </div>
-        
-
-
-
-
           </div>
         </div>
+
+
+
+
+
+
+<div class="row">
+           <div class="col-xl">
+              {% comment %} <div class="card card-stats mb-4 mb-xl-0"> {% endcomment %}
+                <div class="card-body-stats">              
+                       <div class="table-responsive">
+                       <h2 class="card-title">Urgent item required to restock</h2>
+<table id="datatable2" class="table order-column hover">
+<thead>
+<tr>
+{% for item in list%}
+<th>{{ item }}</th>
+{% endfor %}
+<th>Edit</th>
+</tr>
+</thead>
+<tbody>
+{% for i in urgent %}
+
+<tr class="gradeX">
+
+ <td> {{ i.item_code }}</td>
+<td>{{ i.item_quantity_available }}</td>
+<td>{{ i.Predicted_item }}</td>
+<td>{{ i.Lack}}</td>
+
+            <td>
+            <a href="{% url 'edit_item_status' i.item_code %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            </td>   
+</tr>
+{% endfor %}
+</tbody>
+</table>
+                </div>
+              </div> 
+            </div>
       </div>
 
+
+
+      
+      </div>
         </body>
               
             </div>
