@@ -101,7 +101,7 @@
               </div>
             </div>
             
-            <div class="col-xl-2 col-lg-4">
+            {% comment %} <div class="col-xl-2 col-lg-4">
               <div class="card card-stats mb-4 mb-xl-0">
                 <div class="card-body">
                   <div class="row">
@@ -111,7 +111,7 @@
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                        {% comment %} <i class="fa fa-users"></i> {% endcomment %}
+
                       </div>
                     </div>
                   </div>
@@ -121,12 +121,52 @@
                   </p>
                 </div>
               </div>
-            </div>
+            </div> {% endcomment %}
+
 
           </div>
         </div>
 
 
+
+
+<div class="row">
+           <div class="col-xl">
+              {% comment %} <div class="card card-stats mb-4 mb-xl-0"> {% endcomment %}
+                <div class="card-body-stats">              
+                       <div class="table-responsive">
+                       <h2 class="card-title">Re-order yet to Receive</h2>
+<table id="datatable1" class="table order-column hover">
+<thead>
+<tr>
+{% for item in reorder_list%}
+<th>{{ item }}</th>
+{% endfor %}
+<th>Edit</th>
+</tr>
+</thead>
+<tbody>
+{% for i in reorderlist %}
+
+<tr class="gradeX">
+
+ <td> {{ i.item_code }}</td>
+ <td>{{ i.reorder_date }}</td>
+<td>{{ i.reorder_quantity }}</td>
+<td>{{ i.receive_date }}</td>
+<td>{{ i.receive_quantity }}</td>
+<td>{{ i.Lack}}</td>
+    <td>
+            <a href="{% url 'edit_reorder' i.order_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+               </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+                </div>
+              </div> 
+            </div>
+      </div>
 
 
 

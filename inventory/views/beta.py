@@ -46,10 +46,13 @@ def index(request):
     stockitem=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','stock_price'))
     quantity_reorder=pd.DataFrame.from_records(reorder.objects.filter(date_reorder__year=year,date_reorder__month=month).values('quantity_reorder','item_code'))
     lastmonthquantity_reorder=pd.DataFrame.from_records(reorder.objects.filter(date_reorder__year=last_year,date_reorder__month=last_month).values('quantity_reorder','item_code'))
-    receive_date=pd.DataFrame.from_records(reorder.objects.select_related().values('date_of_receive','item_code'))
-    reorder_date=pd.DataFrame.from_records(reorder.objects.select_related().values('date_reorder','item_code'))
-    receive_quantity=pd.DataFrame.from_records(reorder.objects.select_related().values('quantity_receive','item_code'))
-    reorder_quantity=pd.DataFrame.from_records(reorder.objects.select_related().values('quantity_reorder','item_code'))
+    order_id=pd.DataFrame.from_records(reorder.objects.select_related().values('order_id','item_code'))
+    Allreceive_date=pd.DataFrame.from_records(reorder.objects.select_related().values('date_of_receive','order_id'))
+    receive_date=Allreceive_date[Allreceive_date['date_of_receive'].isna()]
+    reorder_date=pd.DataFrame.from_records(reorder.objects.select_related().values('date_reorder','order_id'))
+    Allreceive_quantity=pd.DataFrame.from_records(reorder.objects.select_related().values('quantity_receive','order_id'))
+    receive_quantity=Allreceive_quantity[Allreceive_quantity['quantity_receive'].isna()]
+    reorder_quantity=pd.DataFrame.from_records(reorder.objects.select_related().values('quantity_reorder','order_id'))
     
     # item=item.reset_index()
     # item=item.set_index('item_code')
@@ -57,6 +60,34 @@ def index(request):
     lastprofit=0
     cost=0
     lastcost=0
+    reorderlist=[]
+    for ind in receive_date.index:
+        receivequantity=receive_quantity.loc[receive_quantity['order_id'] == receive_date['order_id'][ind], 'quantity_receive'].iloc[0]
+        code=order_id.loc[order_id['order_id'] == receive_date['order_id'][ind], 'item_code'].iloc[0]
+        reorderdate=reorder_date.loc[reorder_date['order_id'] == receive_date['order_id'][ind], 'date_reorder'].iloc[0]
+        reorderquantity=reorder_quantity.loc[reorder_quantity['order_id']==receive_date['order_id'][ind],'quantity_reorder'].iloc[0]
+        receivedate=receive_date['date_of_receive'][ind]
+       
+        lacks=0
+        # if receivequantity.isnull() :
+        #     receivequantity='Not Receive yet'
+        #     receivedate='Not Receive yet'
+        lacks=-reorderquantity
+        newreorderrow={'order_id':order_id['order_id'][ind],'item_code':code,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
+        reorderlist.append(newreorderrow.copy())
+    for ind in order_id.index:
+        receivequantity=Allreceive_quantity.loc[Allreceive_quantity['order_id'] == order_id['order_id'][ind], 'quantity_receive'].iloc[0]
+        code=order_id['item_code'][ind]
+        
+        reorderdate=reorder_date.loc[reorder_date['order_id'] ==  order_id['order_id'][ind], 'date_reorder'].iloc[0]
+        reorderquantity=reorder_quantity.loc[reorder_quantity['order_id']== order_id['order_id'][ind],'quantity_reorder'].iloc[0]
+        receivedate=Allreceive_date.loc[Allreceive_date['order_id'] == order_id['order_id'][ind], 'date_of_receive'].iloc[0]
+        lacks=0
+        if reorderquantity>receivequantity:
+            lacks=receivequantity-reorderquantity
+            newreorderrow={'order_id':order_id['order_id'][ind],'item_code':code,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
+            reorderlist.append(newreorderrow.copy())
+
     for ind in quantity_reorder.index:
         stock_price=stockitem.loc[stockitem['item_code'] == quantity_reorder['item_code'][ind], 'stock_price'].iloc[0]
         reorderval=quantity_reorder['quantity_reorder'][ind]
@@ -186,7 +217,7 @@ def index(request):
 
 
     item_list=['item_code','item_quantity_available','Predicted item Required','Lack']  
-
+    reorder_list=['item_code','reorder_date','reorder_quantity','receive_date','receive_quantity','Lack']
 
     context={
         'form': form,
@@ -196,6 +227,8 @@ def index(request):
         'indicator':indicator,
         'urgent':urgent,
         'list':item_list,
+        'reorder_list':reorder_list,
+        'reorderlist':reorderlist,
         # 'cost_percent':cost_percent,
         # 'cost_indicator':cost_indicator,
         'cost':cost
@@ -301,7 +334,7 @@ def report(request):
 
     # print('Fitting the pipeline with the training data from 2014')
 
-    model_pipeline=RandomForestRegressor(n_estimators=5000, oob_score=False, random_state=100)
+    model_pipeline=RandomForestRegressor(n_estimators=10, oob_score=False, random_state=10)
 
     # print(y_train)
     mp=model_pipeline.fit(X_train,y_train)
