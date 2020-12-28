@@ -4,18 +4,7 @@
 {% block body %}
 
   
-{% comment %} <div class="button-group"> {% endcomment %}
 
-{% comment %} <a href="{% url 'display_item_status' %}" class="btn btn-primary btn-md" role="button">Item Status</a>
-<a href="{% url 'add_item' %}" class="btn btn-warning btn-sd" role="button">+</a>
-<a href="{% url 'display_sales_record' %}" class="btn btn-primary btn-md" role="button">Sales Record</a>
-<a href="{% url 'add_sales_record' %}" class="btn btn-warning btn-sd" role="button">+</a>
-<a href="{% url 'display_reorder' %}" class="btn btn-primary btn-md" role="button">Re-order</a>
-<a href="{% url 'add_reorder' %}" class="btn btn-warning btn-sd" role="button">+</a>
-<a href="{% url 'display_supplier' %}" class="btn btn-primary btn-md" role="button">Supplier</a>
-<a href="{% url 'add_supplier' %}" class="btn btn-warning btn-sd" role="button">+</a>
-<a href="{% url 'display_staff_member' %}" class="btn btn-primary btn-md" role="button">Staff</a> {% endcomment %}
-{% comment %} <a href="{% url 'add_staff_member' %}" class="btn btn-warning btn-sd" role="button">+</a> {% endcomment %}
 
 
 
@@ -42,7 +31,7 @@
         <div class="header-body">
           <!-- Card stats -->
           <div class="row">
-            <div class="col-xl-2 col-lg-4">
+            <div class="col-xl-2 col-lg-6">
               <div class="card card-stats mb-4 mb-xl-0">
                 <div class="card-body">
                   <div class="row">
@@ -71,7 +60,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-xl-2 col-lg-4">
+            <div class="col-xl-2 col-lg-6">
               <div class="card card-stats mb-4 mb-xl-0">
                 <div class="card-body">
                   <div class="row">
@@ -79,50 +68,13 @@
                       <h2 class="card-title ">Reorder Cost</h2>
                       <span class="h2 font-weight-bold mb-0">RM {{ cost }}</span>
                     </div>
-                    {% comment %} <div class="col-auto">
-                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
-                        <i class="fas fa-chart-pie"></i>
-                      </div>
-                    </div> {% endcomment %}
                   </div>
                   <p class="mt-3 mb-0 text-muted text-sm">
-                  {% comment %} {% if cost_indicator == None %}
-                    <span class="text-secondary mr-2"><i class="fa fa-minus"></i> {{ cost_percent }}%</span>
-                    {% endif %}
-                  {% if cost_indicator == True %}
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ cost_percent }}%</span>
-                    {% endif %}
-                  {% if cost_indicator == False %}
-                    <span class="text-danger mr-2"><i class="fa fa-arrow-down"></i> {{ cost_percent }}%</span>
-                    {% endif %} {% endcomment %}
                     <span class="text-nowrap">This month's amount</span>
                   </p>
                 </div>
               </div>
             </div>
-            
-            {% comment %} <div class="col-xl-2 col-lg-4">
-              <div class="card card-stats mb-4 mb-xl-0">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h2 class="card-title">BLABLABLA</h2>
-                      <span class="h2 font-weight-bold mb-0">0000</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
-
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-muted text-sm">
-                    <span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> 0%</span>
-                    <span class="text-nowrap">Since yesterday</span>
-                  </p>
-                </div>
-              </div>
-            </div> {% endcomment %}
-
 
           </div>
         </div>
@@ -132,7 +84,7 @@
 
 <div class="row">
            <div class="col-xl">
-              {% comment %} <div class="card card-stats mb-4 mb-xl-0"> {% endcomment %}
+
                 <div class="card-body-stats">              
                        <div class="table-responsive">
                        <h2 class="card-title">Re-order yet to Receive</h2>
@@ -173,7 +125,7 @@
 
 <div class="row">
            <div class="col-xl">
-              {% comment %} <div class="card card-stats mb-4 mb-xl-0"> {% endcomment %}
+
                 <div class="card-body-stats">              
                        <div class="table-responsive">
                        <h2 class="card-title">Urgent item required to restock</h2>
@@ -274,55 +226,6 @@
       </div>
 </section>
 
-{% comment %} 
-<section>
 
-    <div class="section-body">
-      <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-head style-primary">
-                <header>Dashboard</header>
-                  <div class="tools">
-                        <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
-                        <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
-                  </div>
-              </div>
-
-
-
-        <div class="card-body">
-            <div class="table-responsive">
-                  
-      <body>
-        {% autoescape off %}
-      <div class="row">
-        <div class="col-md-4">
-        	<form class="form" role="form" action="" method="post">
-            {% csrf_token %}
-                <div class="form-group floating-label">
-                    <label for="select2">Item Code</label>
-                    {{ form.post | add_class:'form-control' }}
-                </div>
-                <br>
-            <button type="submit">Submit</button>
-          </form>
-          <h2>{{ data }}</h2>
-          
-        </div>
-      </div>
-              {{ fig }}
-              {{ fig1 }}
-               {% endautoescape %}
-              </body>
-              
-            </div>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-</section>  {% endcomment %}
 
 {% endblock %}
