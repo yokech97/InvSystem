@@ -52,7 +52,7 @@ def display_staff_member(request):
 def display_sales_record(request):
   
         itemlist=['record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code','item_quantity_available']
-        items = sales_record.objects.all().values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code','item_code__item_quantity_available')
+        items = sales_record.objects.all().values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code','item_code__item_quantity_available').order_by('-record_id')
         context={
         'list':itemlist,
         'header': 'Sales Record',
@@ -64,7 +64,7 @@ def display_sales_record(request):
 @login_required
 def display_reorder(request):
     itemlist=['order_id','date_reorder','quantity_reorder','date_of_receive','quantity_receive','item_code','supplier','remarks','item_quantity_available']
-    items = reorder.objects.select_related().values('order_id','date_reorder','quantity_reorder','date_of_receive','quantity_receive','item_code','supplier','remarks','item_code__item_quantity_available')
+    items = reorder.objects.select_related().values('order_id','date_reorder','quantity_reorder','date_of_receive','quantity_receive','item_code','supplier','remarks','item_code__item_quantity_available').order_by('-order_id')
     context={
         'list':itemlist,
         'header': 'Reorder',

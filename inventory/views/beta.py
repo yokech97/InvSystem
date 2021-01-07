@@ -61,6 +61,7 @@ def index(request):
     cost=0
     lastcost=0
     reorderlist=[]
+    # add all null receive date value to re-order yet to receive
     for ind in receive_date.index:
         receivequantity=receive_quantity.loc[receive_quantity['order_id'] == receive_date['order_id'][ind], 'quantity_receive'].iloc[0]
         code=order_id.loc[order_id['order_id'] == receive_date['order_id'][ind], 'item_code'].iloc[0]
@@ -75,6 +76,7 @@ def index(request):
         lacks=-reorderquantity
         newreorderrow={'order_id':order_id['order_id'][ind],'item_code':code,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
         reorderlist.append(newreorderrow.copy())
+        # add all receive but yet not fully receive compare to reorder amount
     for ind in order_id.index:
         receivequantity=Allreceive_quantity.loc[Allreceive_quantity['order_id'] == order_id['order_id'][ind], 'quantity_receive'].iloc[0]
         code=order_id['item_code'][ind]

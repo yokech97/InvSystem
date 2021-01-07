@@ -47,17 +47,13 @@
 <th>status</th>
 <th>item_quantity_available</th>
 <th>issues</th> {% endcomment %}
-{% if items3 %}
-{% for item in list%}
-<th>{{ item }}</th>
-{% endfor %}
-{% else %}
+
 {% for item in list%}
 <th>{{ item }}</th>
 {% endfor %}
 <th></th>
 <th></th>
-{% endif %}
+
 </tr>
 </thead>
 <tbody>
