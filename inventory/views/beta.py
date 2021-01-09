@@ -41,6 +41,7 @@ def index(request):
     last_year = year if datem.month > 1 else year-1
     # thismonth =datetime.now().month
     solditem=pd.DataFrame.from_records(sales_record.objects.filter(date_sold__year=year,date_sold__month=month).values('item_quantity_sold','item_code'))
+    item_name=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','item_name'))
     lastmonthsolditem=pd.DataFrame.from_records(sales_record.objects.filter(date_sold__year=last_year,date_sold__month=last_month).values('item_quantity_sold','item_code'))
     item=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','retail_price'))
     stockitem=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','stock_price'))
@@ -68,26 +69,29 @@ def index(request):
         reorderdate=reorder_date.loc[reorder_date['order_id'] == receive_date['order_id'][ind], 'date_reorder'].iloc[0]
         reorderquantity=reorder_quantity.loc[reorder_quantity['order_id']==receive_date['order_id'][ind],'quantity_reorder'].iloc[0]
         receivedate=receive_date['date_of_receive'][ind]
-       
+        name=item_name.loc[item_name['item_code'] == code, 'item_name'].iloc[0]
+        orderid=order_id['order_id'][ind]
         lacks=0
         # if receivequantity.isnull() :
         #     receivequantity='Not Receive yet'
         #     receivedate='Not Receive yet'
         lacks=-reorderquantity
-        newreorderrow={'order_id':order_id['order_id'][ind],'item_code':code,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
+        newreorderrow={'order_id':orderid,'item_code':code,'item_name':name,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
         reorderlist.append(newreorderrow.copy())
         # add all receive but yet not fully receive compare to reorder amount
     for ind in order_id.index:
         receivequantity=Allreceive_quantity.loc[Allreceive_quantity['order_id'] == order_id['order_id'][ind], 'quantity_receive'].iloc[0]
         code=order_id['item_code'][ind]
-        
+        names=item_name.loc[item_name['item_code'] == code, 'item_name'].iloc[0]
         reorderdate=reorder_date.loc[reorder_date['order_id'] ==  order_id['order_id'][ind], 'date_reorder'].iloc[0]
         reorderquantity=reorder_quantity.loc[reorder_quantity['order_id']== order_id['order_id'][ind],'quantity_reorder'].iloc[0]
         receivedate=Allreceive_date.loc[Allreceive_date['order_id'] == order_id['order_id'][ind], 'date_of_receive'].iloc[0]
+
         lacks=0
         if reorderquantity>receivequantity:
             lacks=receivequantity-reorderquantity
-            newreorderrow={'order_id':order_id['order_id'][ind],'item_code':code,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
+            orderid1=order_id['order_id'][ind]
+            newreorderrow={'order_id':orderid1,'item_code':code,'item_name':names,'reorder_date':reorderdate,'reorder_quantity':reorderquantity,'receive_date':receivedate,'receive_quantity':receivequantity,'Lack':lacks}
             reorderlist.append(newreorderrow.copy())
 
     for ind in quantity_reorder.index:
@@ -211,15 +215,15 @@ def index(request):
             
 
         numberleft=quantity_available.loc[quantity_available['item_code']==datas, 'item_quantity_available'].iloc[0]
-
+        namess=item_name.loc[item_name['item_code']==datas,'item_name'].iloc[0]
         if numberleft<average:
             lack=numberleft-average
-            newrow={'item_code':datas,'item_quantity_available':numberleft,'Predicted_item':int(average),'Lack':lack}
+            newrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':int(average),'Lack':lack}
             urgent.append(newrow.copy())
 
 
-    item_list=['item_code','item_quantity_available','Predicted item Required','Lack']  
-    reorder_list=['item_code','reorder_date','reorder_quantity','receive_date','receive_quantity','Lack']
+    item_list=['item_code','item_name','item_quantity_available','Predicted item Required','Lack']  
+    reorder_list=['order_id','item_code','item_name','reorder_date','reorder_quantity','receive_date','receive_quantity','Lack']
 
     context={
         'form': form,

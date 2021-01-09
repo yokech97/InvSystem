@@ -5,6 +5,10 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^report$', report, name="report"),
     url(r'^item$', display_item_status, name="display_item_status"),
+   
+    url(r'^items/view_item/(?P<pk>\d+)$$', view_item_status_reorder, name="view_item_status_reorder"),
+     url(r'^itemss/view_item/(?P<pk>\d+)$$', view_item_status_sales, name="view_item_status_sales"),
+    url(r'^itemh/view_item/(?P<pk>\d+)$$', view_item_status_home, name="view_item_status_home"),
     url(r'^supplier$', display_supplier, name="display_supplier"),
     url(r'^staff$', display_staff_member, name="display_staff_member"),
     url(r'^sales$', display_sales_record, name="display_sales_record"),

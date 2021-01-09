@@ -101,8 +101,9 @@
 {% for i in reorderlist %}
 
 <tr class="gradeX">
-
+<td> {{ i.order_id }}</td>
  <td> {{ i.item_code }}</td>
+ <td> {{ i.item_name }}</td>
  <td>{{ i.reorder_date }}</td>
 <td>{{ i.reorder_quantity }}</td>
 <td>{{ i.receive_date }}</td>
@@ -111,6 +112,7 @@
     <td>
             <a href="{% url 'edit_reorder' i.order_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
                </td>
+            
 </tr>
 {% endfor %}
 </tbody>
@@ -135,7 +137,9 @@
 {% for item in list%}
 <th>{{ item }}</th>
 {% endfor %}
-<th>Edit</th>
+<th>Button</th>
+<th>Button</th>
+
 </tr>
 </thead>
 <tbody>
@@ -144,13 +148,17 @@
 <tr class="gradeX">
 
  <td> {{ i.item_code }}</td>
+ <td> {{ i.item_name }}</td>
 <td>{{ i.item_quantity_available }}</td>
 <td>{{ i.Predicted_item }}</td>
 <td>{{ i.Lack}}</td>
 
             <td>
-            <a href="{% url 'edit_item_status' i.item_code %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
+            <a href="{% url 'view_item_status_home' i.item_code %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > View</a>
             </td>   
+                  <td>
+            <a href="{% url 'add_reorder'  %}" class="btn btn-primary btn-sm" role="button" aria-pressed="true" > Add Order</a>
+               </td>
 </tr>
 {% endfor %}
 </tbody>

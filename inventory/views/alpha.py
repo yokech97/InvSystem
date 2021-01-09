@@ -26,6 +26,7 @@ def display_item_status(request):
     }
 
     return render(request,'inv/index.html',context)
+
 @login_required
 def display_supplier(request):
     items = supplier.objects.all()
@@ -37,6 +38,7 @@ def display_supplier(request):
     }
 
     return render(request,'inv/index.html',context)
+
 @login_required
 def display_staff_member(request):
     itemlist=['id','username','password']
@@ -51,8 +53,8 @@ def display_staff_member(request):
 @login_required
 def display_sales_record(request):
   
-        itemlist=['record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code','item_quantity_available']
-        items = sales_record.objects.all().values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code','item_code__item_quantity_available').order_by('-record_id')
+        itemlist=['record_id','item_code','item_name','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_quantity_available']
+        items = sales_record.objects.all().values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code','item_code__item_quantity_available','item_code__item_name').order_by('-record_id')
         context={
         'list':itemlist,
         'header': 'Sales Record',
@@ -63,8 +65,8 @@ def display_sales_record(request):
         return render(request,'inv/index.html',context)
 @login_required
 def display_reorder(request):
-    itemlist=['order_id','date_reorder','quantity_reorder','date_of_receive','quantity_receive','item_code','supplier','remarks','item_quantity_available']
-    items = reorder.objects.select_related().values('order_id','date_reorder','quantity_reorder','date_of_receive','quantity_receive','item_code','supplier','remarks','item_code__item_quantity_available').order_by('-order_id')
+    itemlist=['order_id','item_code','item_name','date_reorder','quantity_reorder','date_of_receive','quantity_receive','supplier','remarks','item_quantity_available']
+    items = reorder.objects.select_related().values('order_id','date_reorder','quantity_reorder','date_of_receive','quantity_receive','item_code','supplier','remarks','item_code__item_quantity_available','item_code__item_name').order_by('-order_id')
     context={
         'list':itemlist,
         'header': 'Reorder',
@@ -234,6 +236,29 @@ def edit_item(request, pk, model, cls):
 
     return render(request, 'inv/edit_item.html', {'form': form})
 
+@login_required
+def readonly_display_item_status(request, pk, model):
+    item = get_object_or_404(item_status, pk=pk)
+    form = view_item_statusForm(request.POST,instance=item)
+    if model == 'sales_record':
+        model=True
+    if model == 'reorder':
+        model=False
+    if model == 'HomeForm':
+        model=None
+    return render(request,'inv/view_item.html',context={'form':form,'header': 'Item Status','model':model})
+
+@login_required
+def view_item_status_sales(request, pk):
+    return readonly_display_item_status(request, pk, 'sales_record')
+
+@login_required
+def view_item_status_reorder(request, pk):
+    return readonly_display_item_status(request, pk, 'reorder')
+
+@login_required
+def view_item_status_home(request, pk):
+    return readonly_display_item_status(request, pk, 'HomeForm')
 
 @login_required
 def edit_item_status(request, pk):

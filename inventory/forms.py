@@ -29,6 +29,18 @@ class item_statusForm(forms.ModelForm):
         model = item_status
         fields = ('item_code', 'item_name', 'type', 'retail_price','stock_price','status','item_quantity_available','issues',)
 
+class view_item_statusForm(forms.ModelForm):
+    item_code=forms.CharField(disabled=True)
+    item_name=forms.CharField(disabled=True)
+    type=forms.CharField(disabled=True)
+    retail_price=forms.CharField(disabled=True)
+    stock_price=forms.CharField(disabled=True)
+    status=forms.CharField(disabled=True)
+    item_quantity_available=forms.CharField(disabled=True)
+    issues=forms.CharField(disabled=True)
+    class Meta:
+        model = item_status
+        fields = ('item_code', 'item_name', 'type', 'retail_price','stock_price','status','item_quantity_available','issues',)
 
 class SupplierForm(forms.ModelForm):
     class Meta:

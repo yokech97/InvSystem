@@ -54,6 +54,7 @@
 <th></th>
 <th></th>
 
+
 </tr>
 </thead>
 <tbody>
@@ -103,11 +104,16 @@
 {% for item in items4%}
 <tr class="gradeX">
 <td>{{ item.record_id }}</td>
+<td>{{ item.item_code }}</td>
+{% if item.item_code == None %}
+<td>{{ item.item_code__item_name}}</td>
+{% else %}
+<td><a href="{% url 'view_item_status_sales' item.item_code %}"  role="button" aria-pressed="true" >{{ item.item_code__item_name}}</a></td>
+{% endif %}
 <td>{{ item.item_quantity_before_sales }}</td>
 <td>{{ item.item_quantity_sold }}</td>
 <td>{{ item.item_quantity_after_sales }}</td>
 <td>{{ item.date_sold }}</td>
-<td>{{ item.item_code }}</td>
 <td>{{ item.item_code__item_quantity_available}}</td>
 
     <td>
@@ -122,14 +128,20 @@
 {% for item in items5%}
 <tr class="gradeX">
 <td>{{ item.order_id }}</td>
+<td>{{ item.item_code }}</td>
+{% if item.item_code == None %}
+<td>{{ item.item_code__item_name}}</td>
+{% else %}
+<td><a href="{% url 'view_item_status_reorder' item.item_code %}"  role="button" aria-pressed="true" >{{ item.item_code__item_name}}</a></td>
+{% endif %}
 <td>{{ item.date_reorder }}</td>
 <td>{{ item.quantity_reorder }}</td>
 <td>{{ item.date_of_receive }}</td>
 <td>{{ item.quantity_receive }}</td>
-<td>{{ item.item_code }}</td>
 <td>{{ item.supplier }}</td>
 <td>{{ item.remarks }}</td>
 <td>{{ item.item_code__item_quantity_available}}</td>
+
     <td>
             <a href="{% url 'edit_reorder' item.order_id %}" class="btn btn-warning btn-sm" role="button" aria-pressed="true" > Edit</a>
                </td>
