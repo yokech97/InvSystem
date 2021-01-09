@@ -47,12 +47,19 @@
                 <br>
             <button type="submit">Submit</button>
           </form>
-          <h2>{{ data }}</h2>
+          <h2 style="font-size:300%; color:#000080; font-weight:bold; font-style:italic;">{{ data }}</h2>
           
         </div>
       </div>
               {{ fig }}
               {{ fig1 }}
+                  <div class="col-md-12 column">
+
+        <div class="well">
+            <span style="white-space: pre-line; font-size: 150%">The <span style="font-size:110%; color:#000080; font-weight:bold; font-style:italic;">Demand Sales Prediction</span>  for item <span style="font-size:110%; color:#FF0000; font-weight:bold; font-style:italic;">{{ data }}</span> in {{ month }} is <span style="font-size:110%; color:#228B22; font-weight:bold; font-style:italic;">{{ average }}</span>.
+            The <span style="font-size:110%; color:#000080; font-weight:bold; font-style:italic;">Suggested Reorder Amount</span> for item <span style="font-size:110%; color:#FF0000; font-weight:bold; font-style:italic;">{{ data }}</span> in {{ month }} is <span style="font-size:110%; color:#228B22; font-weight:bold; font-style:italic;">{{ suggested }}</span>.</span>
+        
+        </div>
                {% endautoescape %}
               </body>
               

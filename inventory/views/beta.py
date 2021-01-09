@@ -148,7 +148,7 @@ def index(request):
     quantity_available=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','item_quantity_available'))
     import datetime as dt
     urgent=[]
-    g=[]
+    # g=[]
     for datas in item_code:
         sales=pd.DataFrame.from_records(sales_record.objects.filter(item_code=datas).values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code_id'))
         cols = ['record_id','item_code_id']
@@ -206,7 +206,7 @@ def index(request):
             
         if len(position)!=0:
             average=(sumval/len(position))
-        g.append(average)
+        # g.append(average)
         if average<50:
             average=(average+50)/2
         if average>50:
@@ -244,6 +244,11 @@ def index(request):
 
 @login_required
 def report(request):
+    datem=datetime.datetime.now()
+    year=datem.year
+    month=datem.month
+    last_month = datem.month-1 if datem.month > 1 else 12
+    last_year = year if datem.month > 1 else year-1
     import datetime as dt
     matplotlib.rcParams['axes.labelsize'] = 14
     matplotlib.rcParams['xtick.labelsize'] = 12
@@ -376,6 +381,27 @@ def report(request):
     # plt.ylabel('Item Quantity Sold')
     # plt.xlabel('Date Sold')
     # plt.show()
+    a=test['date_sold'].dt.month.tolist()
+    position=[]
+    count=0
+    for x in a:
+        if x == month:
+            position.append(count)
+        count=count+1
+    sumval=0
+    average=0
+    for x in position:
+            sumval=sumval+pred_test_rf[x]
+            
+    if len(position)!=0:
+        average=(sumval/len(position))
+    
+    if average<50:
+        suggested=(average+50)/2
+    if average>50:
+        suggested= (average+100)/2
+    average=int(average)
+    suggested=int(suggested)
 
     pred1=test['date_sold']+ pd.DateOffset(years=1)
     observe1=test['date_sold']
@@ -389,11 +415,16 @@ def report(request):
     figure1.add_trace(scatter3)
     figure1.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
     fig1= plot(figure1,output_type='div')
+    months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
+    
     context ={
         'fig':fig,
         'fig1':fig1,
         'form': form,
         'data':data,
+        'month':months[month-1],
+        'average':average,
+        'suggested':suggested
     }
     
     return render(request, 'inv/report.html',context)
