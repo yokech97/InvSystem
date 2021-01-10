@@ -148,7 +148,7 @@ def index(request):
     quantity_available=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','item_quantity_available'))
     import datetime as dt
     urgent=[]
-    # g=[]
+    overstock=[]
     for datas in item_code:
         sales=pd.DataFrame.from_records(sales_record.objects.filter(item_code=datas).values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code_id'))
         cols = ['record_id','item_code_id']
@@ -208,23 +208,29 @@ def index(request):
             average=(sumval/len(position))
         # g.append(average)
         if average<50:
-            average=(average+50)/2
+            suggested=(average+50)/2
         if average>50:
-            average= (average+100)/2
+            suggested= (average+100)/2
         average=int(average)
+        suggested=int(suggested)
             
 
         numberleft=quantity_available.loc[quantity_available['item_code']==datas, 'item_quantity_available'].iloc[0]
         namess=item_name.loc[item_name['item_code']==datas,'item_name'].iloc[0]
-        if numberleft<average:
-            lack=numberleft-average
-            newrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':int(average),'Lack':lack}
+        if numberleft<suggested:
+            lack=numberleft-suggested
+            newrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Lack':lack}
             urgent.append(newrow.copy())
+        if numberleft>suggested+50:
+            over=numberleft-suggested
+            overnewrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Over':over}
+            overstock.append(overnewrow.copy())
+
 
 
     item_list=['item_code','item_name','item_quantity_available','Predicted item Required','Lack']  
     reorder_list=['order_id','item_code','item_name','reorder_date','reorder_quantity','receive_date','receive_quantity','Lack']
-
+    overstock_list=['item_code','item_name','item_quantity_available','Predicted_item','Over']
     context={
         'form': form,
         'data':data,
@@ -235,6 +241,8 @@ def index(request):
         'list':item_list,
         'reorder_list':reorder_list,
         'reorderlist':reorderlist,
+        'overstock':overstock,
+        'overstock_list':overstock_list,
         # 'cost_percent':cost_percent,
         # 'cost_indicator':cost_indicator,
         'cost':cost
