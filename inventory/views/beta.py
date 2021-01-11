@@ -390,8 +390,63 @@ def report(request):
     # plt.xlabel('Date Sold')
     # plt.show()
     a=test['date_sold'].dt.month.tolist()
+    j=test['date_sold'].dt.year.tolist()
+    k=validation['date_sold'].dt.month.tolist()
+    s=validation['date_sold'].dt.year.tolist()
     position=[]
     count=0
+    bulan=[1,2,3,4,5,6,7,8,9,10,11,12]
+    
+    new_pred=[]
+   
+    positions=[]
+    for b in bulan:
+        counter=0
+        for x in a:
+            if x==b:
+                positions.append(counter)
+            counter=counter+1
+        sumofval=0
+        averageval=0
+        for x in positions:
+            sumofval=sumofval+pred_test_rf[x]
+        if len(positions)!=0:
+            averages=(sumofval/len(positions))
+        new_pred.append(averages)       
+   
+    positions=[]
+    new_test=[]
+    for x in bulan:
+        counter=0
+        for b in a:
+            if x==b:
+                positions.append(counter)
+            counter=counter+1
+        sumofval=0
+        averageval=0
+        for x in positions:
+            sumofval=sumofval+y_test[x]
+        if len(positions)!=0:
+            averages=(sumofval/len(positions))
+        new_test.append(averages)     
+    
+    positions=[]
+    new_valid=[]
+
+    for x in bulan:
+        counter=0
+        for b in k:
+            if x==b:
+                positions.append(counter)
+            counter=counter+1
+        sumofval=0
+        averageval=0
+        for x in positions:
+            sumofval=sumofval+pred_valid_rf[x]
+        if len(positions)!=0:
+            averages=(sumofval/len(positions))
+        new_valid.append(averages)     
+
     for x in a:
         if x == month:
             position.append(count)
@@ -410,20 +465,28 @@ def report(request):
         suggested= (average+100)/2
     average=int(average)
     suggested=int(suggested)
-
-    pred1=test['date_sold']+ pd.DateOffset(years=1)
-    observe1=test['date_sold']
-    pred2=validation['date_sold']+ pd.DateOffset(years=1)
+    months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
+    new_ytest=[]
+    newpredtest=[]
+    new_validt=[]
+    for x in months:
+        new_ytest.append(x+''+str(j[0]))
+        newpredtest.append(x+''+str(j[0]+1))
+        new_validt.append(x+''+str(s[0]+1))
+    # pred1=test['date_sold']+ pd.DateOffset(years=1)
+    # observe1=test['date_sold']
+    # pred2=validation['date_sold']+ pd.DateOffset(years=1)
     figure1 = go.Figure()
-    scatter1 = go.Scatter(x=observe1 , y=y_test, mode='lines+markers',name="Historical Sales")
-    scatter2= go.Scatter(x=pred2, y=pred_valid_rf,mode='lines+markers',name="Historical Predicted Sales")
-    scatter3=go.Scatter(x=pred1, y=pred_test_rf,mode='lines+markers',name="Predicted Sales")
+    scatter1 = go.Scatter(x=new_ytest , y=new_test, mode='lines+markers',name="Historical Sales")
+    scatter2= go.Scatter(x=new_validt, y=new_valid,mode='lines+markers',name="Historical Predicted Sales")
+    scatter3=go.Scatter(x=newpredtest, y=new_pred,mode='lines+markers',name="Predicted Sales")
     figure1.add_trace(scatter1)
     figure1.add_trace(scatter2)
     figure1.add_trace(scatter3)
     figure1.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
     fig1= plot(figure1,output_type='div')
-    months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
+
+
     
     context ={
         'fig':fig,
