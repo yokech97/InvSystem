@@ -98,12 +98,12 @@ def index(request):
         stock_price=stockitem.loc[stockitem['item_code'] == quantity_reorder['item_code'][ind], 'stock_price'].iloc[0]
         reorderval=quantity_reorder['quantity_reorder'][ind]
         reordervalue=reorderval*stock_price
-        cost=+reordervalue
+        cost=cost+reordervalue
     for ind in lastmonthquantity_reorder.index:
         stock_price=stockitem.loc[stockitem['item_code'] == lastmonthquantity_reorder['item_code'][ind], 'stock_price'].iloc[0]
         reorderval=lastmonthquantity_reorder['quantity_reorder'][ind]
         reordervalue=reorderval*stock_price
-        lastcost=+reordervalue
+        lastcost=lastcost+reordervalue
         
     for ind in solditem.index:
         retail_price=item.loc[item['item_code'] == solditem['item_code'][ind], 'retail_price'].iloc[0]
@@ -111,19 +111,18 @@ def index(request):
         gain=retail_price-stock_price
         sold=solditem['item_quantity_sold'][ind]
         gain=gain*sold
-        profit+=gain
+        profit=profit+gain
         
     for ind in lastmonthsolditem.index:
-        if lastmonthsolditem.empty:
-            continue
-
-        else:
+        if lastmonthsolditem.empty==False:
             lastprice=item.loc[item['item_code'] == lastmonthsolditem['item_code'][ind], 'retail_price'].iloc[0]
             laststockprice=stockitem.loc[stockitem['item_code'] == lastmonthsolditem['item_code'][ind], 'stock_price'].iloc[0]
             lastsold=lastmonthsolditem['item_quantity_sold'][ind]
             lastmonthprofit=lastprice-laststockprice
             lastgain=lastmonthprofit*lastsold
-            lastprofit+=lastgain
+            lastprofit=lastprofit+lastgain
+
+
     profit=profit-cost
     lastmonthprofit=lastmonthprofit-lastcost
 
@@ -153,99 +152,100 @@ def index(request):
     overstock=[]
     for datas in item_code:
         sales=pd.DataFrame.from_records(sales_record.objects.filter(item_code=datas).values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code_id'))
-        cols = ['record_id','item_code_id']
-        sales.drop(cols, axis=1, inplace=True)
+        if sales.empty==False:
+            cols = ['record_id','item_code_id']
+            sales.drop(cols, axis=1, inplace=True)
 
-        sales['date_sold'] = pd.to_datetime(sales['date_sold'],format='%Y/%m/%d')
-        max_year=pd.DataFrame.from_records(sales_record.objects.filter(item_code=datas).values('date_sold','record_id').latest('date_sold'),index=[0])
-        max_year['date_sold']=pd.to_datetime(max_year['date_sold'],format='%Y/%m/%d')
-        max_year['year']=max_year['date_sold'].dt.year
-        max_year=max_year.reset_index()
-        sales = sales.reset_index()
-        sales = sales.set_index('date_sold')
+            sales['date_sold'] = pd.to_datetime(sales['date_sold'],format='%Y/%m/%d')
+            max_year=pd.DataFrame.from_records(sales_record.objects.filter(item_code=datas).values('date_sold','record_id').latest('date_sold'),index=[0])
+            max_year['date_sold']=pd.to_datetime(max_year['date_sold'],format='%Y/%m/%d')
+            max_year['year']=max_year['date_sold'].dt.year
+            max_year=max_year.reset_index()
+            sales = sales.reset_index()
+            sales = sales.set_index('date_sold')
 
-        y = sales
+            y = sales
 
-        z=y[str(max_year['year'][0]):]
+            z=y[str(max_year['year'][0]):]
 
-        train=pd.DataFrame({'date_sold':y.index,'item_quantity_sold':y['item_quantity_sold'],'item_quantity_before_sales':y['item_quantity_before_sales'],'item_quantity_after_sales':y['item_quantity_after_sales']})
-        # validation=pd.DataFrame({'date_sold':w.index,'item_quantity_sold':w['item_quantity_sold'],'item_quantity_before_sales':w['item_quantity_before_sales'],'item_quantity_after_sales':w['item_quantity_after_sales']})
-        test=pd.DataFrame({'date_sold':z.index,'item_quantity_sold':z['item_quantity_sold'],'item_quantity_before_sales':z['item_quantity_before_sales'],'item_quantity_after_sales':z['item_quantity_after_sales']})
-        
-        X_train = train.drop(columns=['item_quantity_sold'])
-        y_train = train['item_quantity_sold'].values
-        X_train['date_sold']=X_train['date_sold'].map(dt.datetime.toordinal)
-
-
-        X_test = test.drop(columns=['item_quantity_sold'])
-        y_test = test['item_quantity_sold'].values
-        X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
-
-
-        model_pipeline=RandomForestRegressor(n_estimators=10, oob_score=False, random_state=10)
-
-        # print(y_train)
-        mp=model_pipeline.fit(X_train,y_train)
-   
-        
-        # pred_test_rf.append(mp.predict(X_test))
-        # pred_test_rf.append('month')
-        a=test['date_sold'].dt.month.tolist()
-        position=[]
-        count=0
-        for x in a:
-            if x == month:
-                position.append(count)
-            count=count+1
-        
-        # pred_test_rf.append(position)
-        sumval=0
-        average=0
-        suggested=0
-        listofdata=mp.predict(X_test)
-        
-        for x in position:
-            sumval=sumval+listofdata[x]
+            train=pd.DataFrame({'date_sold':y.index,'item_quantity_sold':y['item_quantity_sold'],'item_quantity_before_sales':y['item_quantity_before_sales'],'item_quantity_after_sales':y['item_quantity_after_sales']})
+            # validation=pd.DataFrame({'date_sold':w.index,'item_quantity_sold':w['item_quantity_sold'],'item_quantity_before_sales':w['item_quantity_before_sales'],'item_quantity_after_sales':w['item_quantity_after_sales']})
+            test=pd.DataFrame({'date_sold':z.index,'item_quantity_sold':z['item_quantity_sold'],'item_quantity_before_sales':z['item_quantity_before_sales'],'item_quantity_after_sales':z['item_quantity_after_sales']})
             
-        if len(position)!=0:
-            average=(sumval/len(position))
-        # g.append(average)
-        numberleft=quantity_available.loc[quantity_available['item_code']==datas, 'item_quantity_available'].iloc[0]
-        if average<50:
-            if average==0:
-                suggested=0
-            else:
-                if 5<average<10:
-                    diff=numberleft-average
-                    if diff<15:
-                        suggested=(average+15)
-                if 10<average<30:
-                    diff=numberleft-average
-                    if diff<30:
-                        suggested=(average+25)
-                if 30<average<50:
-                    diff=numberleft-average
-                    if diff<50:
-                            suggested=(average+40)
+            X_train = train.drop(columns=['item_quantity_sold'])
+            y_train = train['item_quantity_sold'].values
+            X_train['date_sold']=X_train['date_sold'].map(dt.datetime.toordinal)
+
+
+            X_test = test.drop(columns=['item_quantity_sold'])
+            y_test = test['item_quantity_sold'].values
+            X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
+
+
+            model_pipeline=RandomForestRegressor(n_estimators=10, oob_score=False, random_state=10)
+
+            # print(y_train)
+            mp=model_pipeline.fit(X_train,y_train)
+    
+            
+            # pred_test_rf.append(mp.predict(X_test))
+            # pred_test_rf.append('month')
+            a=test['date_sold'].dt.month.tolist()
+            position=[]
+            count=0
+            for x in a:
+                if x == month:
+                    position.append(count)
+                count=count+1
+            
+            # pred_test_rf.append(position)
+            sumval=0
+            average=0
+            suggested=0
+            listofdata=mp.predict(X_test)
+            
+            for x in position:
+                sumval=sumval+listofdata[x]
                 
-        if average>50:
-            diff=numberleft-average
-            if diff<70:
-                suggested=(average+60)
-        average=int(average)
-        suggested=int(suggested)
-            
+            if len(position)!=0:
+                average=(sumval/len(position))
+            # g.append(average)
+            numberleft=quantity_available.loc[quantity_available['item_code']==datas, 'item_quantity_available'].iloc[0]
+            if average<50:
+                if average==0:
+                    suggested=0
+                else:
+                    if 5<average<10:
+                        diff=numberleft-average
+                        if diff<15:
+                            suggested=(average+15)
+                    if 10<average<30:
+                        diff=numberleft-average
+                        if diff<30:
+                            suggested=(average+25)
+                    if 30<average<50:
+                        diff=numberleft-average
+                        if diff<50:
+                                suggested=(average+40)
+                    
+            if average>50:
+                diff=numberleft-average
+                if diff<70:
+                    suggested=(average+60)
+            average=int(average)
+            suggested=int(suggested)
+                
 
 
-        namess=item_name.loc[item_name['item_code']==datas,'item_name'].iloc[0]
-        if numberleft<suggested:
-            lack=numberleft-suggested
-            newrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Lack':lack}
-            urgent.append(newrow.copy())
-        if numberleft>suggested:
-            over=numberleft-suggested
-            overnewrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Over':over}
-            overstock.append(overnewrow.copy())
+            namess=item_name.loc[item_name['item_code']==datas,'item_name'].iloc[0]
+            if numberleft<suggested:
+                lack=numberleft-suggested
+                newrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Lack':lack}
+                urgent.append(newrow.copy())
+            if numberleft>suggested:
+                over=numberleft-suggested
+                overnewrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Over':over}
+                overstock.append(overnewrow.copy())
 
 
 
