@@ -146,6 +146,8 @@ def index(request):
  
     item_code=item['item_code']
     quantity_available=pd.DataFrame.from_records(item_status.objects.select_related().values('item_code','item_quantity_available'))
+
+        
     import datetime as dt
     urgent=[]
     overstock=[]
@@ -199,6 +201,7 @@ def index(request):
         # pred_test_rf.append(position)
         sumval=0
         average=0
+        suggested=0
         listofdata=mp.predict(X_test)
         
         for x in position:
@@ -207,21 +210,39 @@ def index(request):
         if len(position)!=0:
             average=(sumval/len(position))
         # g.append(average)
+        numberleft=quantity_available.loc[quantity_available['item_code']==datas, 'item_quantity_available'].iloc[0]
         if average<50:
-            suggested=(average+50)/2
+            if average==0:
+                suggested=0
+            else:
+                if 5<average<10:
+                    diff=numberleft-average
+                    if diff<15:
+                        suggested=(average+15)
+                if 10<average<30:
+                    diff=numberleft-average
+                    if diff<30:
+                        suggested=(average+25)
+                if 30<average<50:
+                    diff=numberleft-average
+                    if diff<50:
+                            suggested=(average+40)
+                
         if average>50:
-            suggested= (average+100)/2
+            diff=numberleft-average
+            if diff<70:
+                suggested=(average+60)
         average=int(average)
         suggested=int(suggested)
             
 
-        numberleft=quantity_available.loc[quantity_available['item_code']==datas, 'item_quantity_available'].iloc[0]
+
         namess=item_name.loc[item_name['item_code']==datas,'item_name'].iloc[0]
         if numberleft<suggested:
             lack=numberleft-suggested
             newrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Lack':lack}
             urgent.append(newrow.copy())
-        if numberleft>suggested+50:
+        if numberleft>suggested:
             over=numberleft-suggested
             overnewrow={'item_code':datas,'item_name':namess,'item_quantity_available':numberleft,'Predicted_item':suggested,'Over':over}
             overstock.append(overnewrow.copy())
@@ -263,25 +284,13 @@ def report(request):
     matplotlib.rcParams['ytick.labelsize'] = 12
     matplotlib.rcParams['text.color'] = 'k'
     form = HomeForm(request.POST)
-    data = ''
+
     if request.method == "POST":
             if form.is_valid():
                 data=form.cleaned_data.get('post')
-    if data=='':
-        figure = go.Figure()
-        figure.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
-        fig= plot(figure,output_type='div')
-        figure1 = go.Figure()
-        figure1.update_layout(title='Prediction of Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
-        fig1= plot(figure1,output_type='div')        
-        context ={
-        'fig':fig,
-        'fig1':fig1,
-        'form': form,
-        'data':data,
-        
-        }
-        return render(request, 'inv/home.html',context)
+
+    quantity_available=pd.DataFrame.from_records(item_status.objects.filter(item_code=data).values('item_quantity_available'))
+    quantity_left=quantity_available['item_quantity_available'][0]
     sales=pd.DataFrame.from_records(sales_record.objects.filter(item_code=data).values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code_id'))
     cols = ['record_id','item_code_id']
     sales.drop(cols, axis=1, inplace=True)
@@ -302,189 +311,281 @@ def report(request):
         #     return year
     # w=y['2015-1':'2015-12']
     # print(max_year)
-    d=max_year['year'][0]
-    w=y[str(d-1)+'-1':str(d-1)+'-12']
-    z=y[str(max_year['year'][0]):]
-    # h = sales['item_quantity_sold'].resample('MS').mean()
-    
-    # layout=go.Layout(title={
-    #     'text': "Timestamp of item sold",
-    #     'xanchor': 'center',
-    #     'yanchor': 'top'},
-    #     height=400,
-    #     xaxis_title="Timestamp",
-    #     yaxis_title="Item Quantity Sold",)
-    figure = go.Figure()
-    scatter = go.Scatter(x=y.index, y=y['item_quantity_sold'], mode='lines+markers')
-    figure.add_trace(scatter)
-    figure.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
-    fig= plot(figure,output_type='div')
-
-
-
-    # plt.figure(figsize=(14, 8))
-    # plt.plot(y.index, y['item_quantity_sold'], 'b-', label = '1046')
-    # plt.xlabel('Date'); plt.ylabel('Item Quantity Sold'); plt.title('Sales of 1046')
-    # plt.show()
-
-
-    train=pd.DataFrame({'date_sold':y.index,'item_quantity_sold':y['item_quantity_sold'],'item_quantity_before_sales':y['item_quantity_before_sales'],'item_quantity_after_sales':y['item_quantity_after_sales']})
-    validation=pd.DataFrame({'date_sold':w.index,'item_quantity_sold':w['item_quantity_sold'],'item_quantity_before_sales':w['item_quantity_before_sales'],'item_quantity_after_sales':w['item_quantity_after_sales']})
-    test=pd.DataFrame({'date_sold':z.index,'item_quantity_sold':z['item_quantity_sold'],'item_quantity_before_sales':z['item_quantity_before_sales'],'item_quantity_after_sales':z['item_quantity_after_sales']})
-    
-    X_train = train.drop(columns=['item_quantity_sold'])
-    y_train = train['item_quantity_sold'].values
-    X_train['date_sold']=X_train['date_sold'].map(dt.datetime.toordinal)
-
-
-    X_test = test.drop(columns=['item_quantity_sold'])
-    y_test = test['item_quantity_sold'].values
-    X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
-
-
-    X_valid = validation.drop(columns=['item_quantity_sold'])
-    y_valid = validation['item_quantity_sold'].values
-    X_valid['date_sold']=X_valid['date_sold'].map(datetime.datetime.toordinal)
-
-
-
-    # print('\n\nBuilding Pipeline\n\n')
-
-
-    # print('Fitting the pipeline with the training data from 2014')
-
-    model_pipeline=RandomForestRegressor(n_estimators=10, oob_score=False, random_state=10)
-
-    # print(y_train)
-    mp=model_pipeline.fit(X_train,y_train)
-
-    # pred_train_rf = mp.predict(X_train)
-    # print(np.sqrt(mean_squared_error(y_train,pred_train_rf)))
-    # print(r2_score(y_train, pred_train_rf))
-    # print(pred_train_rf)
-    # # predict target values on the training data
-
-    # print('\n\nPredict target on the validation data in 2015')
-    # model_pipeline.fit(X_valid,y_valid)
-    pred_valid_rf = mp.predict(X_valid)
-    # print(pred_valid_rf)
-    # print(np.sqrt(mean_squared_error(y_valid,pred_valid_rf)))
-    # print(r2_score(y_valid, pred_valid_rf))
-
-
-
-    # print('\n\nPredict target on the test data in 2016')
-
-    pred_test_rf=mp.predict(X_test)
-    # print(pred_test_rf)
-    # print(np.sqrt(mean_squared_error(y_test,pred_test_rf)))
-    # print(r2_score(y_test, pred_test_rf))
-    # print(y_test)
-    # pred=test['date_sold']+ pd.DateOffset(years=1)
-    # observe=test['date_sold']
-
-
-    # plt.plot(observe,y_test,label='2016 data')
-    # plt.plot(pred,pred_test_rf,label='predicted')
-    # plt.ylabel('Item Quantity Sold')
-    # plt.xlabel('Date Sold')
-    # plt.show()
-    a=test['date_sold'].dt.month.tolist()
-    j=test['date_sold'].dt.year.tolist()
-    k=validation['date_sold'].dt.month.tolist()
-    s=validation['date_sold'].dt.year.tolist()
-    position=[]
-    count=0
-    bulan=[1,2,3,4,5,6,7,8,9,10,11,12]
-    
-    new_pred=[]
-   
-    positions=[]
-    for b in bulan:
-        counter=0
-        for x in a:
-            if x==b:
-                positions.append(counter)
-            counter=counter+1
-        sumofval=0
-        averageval=0
-        for x in positions:
-            sumofval=sumofval+pred_test_rf[x]
-        if len(positions)!=0:
-            averages=(sumofval/len(positions))
-        new_pred.append(averages)       
-   
-    positions=[]
-    new_test=[]
-    for x in bulan:
-        counter=0
-        for b in a:
-            if x==b:
-                positions.append(counter)
-            counter=counter+1
-        sumofval=0
-        averageval=0
-        for x in positions:
-            sumofval=sumofval+y_test[x]
-        if len(positions)!=0:
-            averages=(sumofval/len(positions))
-        new_test.append(averages)     
-    
-    positions=[]
-    new_valid=[]
-
-    for x in bulan:
-        counter=0
-        for b in k:
-            if x==b:
-                positions.append(counter)
-            counter=counter+1
-        sumofval=0
-        averageval=0
-        for x in positions:
-            sumofval=sumofval+pred_valid_rf[x]
-        if len(positions)!=0:
-            averages=(sumofval/len(positions))
-        new_valid.append(averages)     
-
-    for x in a:
-        if x == month:
-            position.append(count)
-        count=count+1
-    sumval=0
-    average=0
-    for x in position:
-            sumval=sumval+pred_test_rf[x]
+    if y.empty==True:
+        figure = go.Figure()
+        figure.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
+        fig= plot(figure,output_type='div')
+        figure1 = go.Figure()
+        figure1.update_layout(title='Prediction of Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
+        fig1= plot(figure1,output_type='div')        
+        average=0
+        suggested=0
+        months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
+        context ={
+        'fig':fig,
+        'fig1':fig1,
+        'form': form,
+        'data':data,
+        'month':months[month-1],
+        'average':average,
+        'suggested':suggested
+        }
+        return render(request, 'inv/home.html',context)
+    else:
+        d=max_year['year'][0]
+        w=y[str(d-1)+'-1':str(d-1)+'-12']
+        z=y[str(max_year['year'][0]):]
+        if w.empty==True:
+            train=pd.DataFrame({'date_sold':y.index,'item_quantity_sold':y['item_quantity_sold'],'item_quantity_before_sales':y['item_quantity_before_sales'],'item_quantity_after_sales':y['item_quantity_after_sales']})
+            test=pd.DataFrame({'date_sold':z.index,'item_quantity_sold':z['item_quantity_sold'],'item_quantity_before_sales':z['item_quantity_before_sales'],'item_quantity_after_sales':z['item_quantity_after_sales']})
             
-    if len(position)!=0:
-        average=(sumval/len(position))
+            X_train = train.drop(columns=['item_quantity_sold'])
+            y_train = train['item_quantity_sold'].values
+            X_train['date_sold']=X_train['date_sold'].map(dt.datetime.toordinal)
+
+
+            X_test = test.drop(columns=['item_quantity_sold'])
+            y_test = test['item_quantity_sold'].values
+            X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
+            model_pipeline=RandomForestRegressor(n_estimators=10, oob_score=False, random_state=10)
+
+            mp=model_pipeline.fit(X_train,y_train)
+            pred_test_rf=mp.predict(X_test)
+            a=test['date_sold'].dt.month.tolist()
+            j=test['date_sold'].dt.year.tolist()
+            position=[]
+            count=0
+            bulan=[1,2,3,4,5,6,7,8,9,10,11,12]
+            
+            new_pred=[]
+        
+
+            for b in bulan:
+                counter=0
+                positions=[]
+                for x in a:
+                    if x==b:
+                        positions.append(counter)
+                    counter=counter+1
+                sumofval=0
+                averageval=0
+                for x in positions:
+                    sumofval=sumofval+pred_test_rf[x]
+                if len(positions)!=0:
+                    averageval=(sumofval/len(positions))
+                new_pred.append(averageval)       
+        
+
+            new_test=[]
+            for x in bulan:
+                counter=0
+                positions=[]
+                for b in a:
+                    if x==b:
+                        positions.append(counter)
+                    counter=counter+1
+                sumofval=0
+                averageval=0
+                for x in positions:
+                    sumofval=sumofval+y_test[x]
+                if len(positions)!=0:
+                    averageval=(sumofval/len(positions))
+                new_test.append(averageval)    
+
+
+
+            for x in a:
+                if x == month:
+                    position.append(count)
+                count=count+1
+            sumval=0
+            average=0
+            suggested=0
+            for x in position:
+                    sumval=sumval+pred_test_rf[x]
+                    
+            if len(position)!=0:
+                average=(sumval/len(position))
+            
+            if average<50:
+                if average==0:
+                    suggested=0
+                else:
+                    if 5<average<10:
+                        diff=quantity_left-average
+                        if diff<15:
+                            suggested=(average+15)
+                    if 10<average<30:
+                        diff=quantity_left-average
+                        if diff<30:
+                            suggested=(average+25)
+                    if 30<average<50:
+                        diff=quantity_left-average
+                        if diff<50:
+                                suggested=(average+40)
+                   
+            if average>50:
+                    diff=quantity_left-average
+                    if diff<70:
+                        suggested=(average+60)
+            average=int(average)
+            suggested=int(suggested)
+            months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
+            new_ytest=[]
+            newpredtest=[]
     
-    if average<50:
-        suggested=(average+50)/2
-    if average>50:
-        suggested= (average+100)/2
-    average=int(average)
-    suggested=int(suggested)
-    months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
-    new_ytest=[]
-    newpredtest=[]
-    new_validt=[]
-    for x in months:
-        new_ytest.append(x+''+str(j[0]))
-        newpredtest.append(x+''+str(j[0]+1))
-        new_validt.append(x+''+str(s[0]+1))
-    # pred1=test['date_sold']+ pd.DateOffset(years=1)
-    # observe1=test['date_sold']
-    # pred2=validation['date_sold']+ pd.DateOffset(years=1)
-    figure1 = go.Figure()
-    scatter1 = go.Scatter(x=new_ytest , y=new_test, mode='lines+markers',name="Historical Sales")
-    scatter2= go.Scatter(x=new_validt, y=new_valid,mode='lines+markers',name="Historical Predicted Sales")
-    scatter3=go.Scatter(x=newpredtest, y=new_pred,mode='lines+markers',name="Predicted Sales")
-    figure1.add_trace(scatter1)
-    figure1.add_trace(scatter2)
-    figure1.add_trace(scatter3)
-    figure1.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
-    fig1= plot(figure1,output_type='div')
+            for x in months:
+                new_ytest.append(x+''+str(j[0]))
+                newpredtest.append(x+''+str(j[0]+1))
+           
+
+            figure1 = go.Figure()
+            scatter1 = go.Scatter(x=new_ytest , y=new_test, mode='lines+markers',name="Historical Sales")
+            scatter2= go.Scatter(mode='lines+markers',name="Historical Predicted Sales")
+            scatter3=go.Scatter(x=newpredtest, y=new_pred,mode='lines+markers',name="Predicted Sales")
+            figure1.add_trace(scatter1)
+            figure1.add_trace(scatter2)
+            figure1.add_trace(scatter3)
+            figure1.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
+            fig1= plot(figure1,output_type='div')
+
+
+
+        else:
+            
+            train=pd.DataFrame({'date_sold':y.index,'item_quantity_sold':y['item_quantity_sold'],'item_quantity_before_sales':y['item_quantity_before_sales'],'item_quantity_after_sales':y['item_quantity_after_sales']})
+            test=pd.DataFrame({'date_sold':z.index,'item_quantity_sold':z['item_quantity_sold'],'item_quantity_before_sales':z['item_quantity_before_sales'],'item_quantity_after_sales':z['item_quantity_after_sales']})
+            
+            X_train = train.drop(columns=['item_quantity_sold'])
+            y_train = train['item_quantity_sold'].values
+            X_train['date_sold']=X_train['date_sold'].map(dt.datetime.toordinal)
+
+
+            X_test = test.drop(columns=['item_quantity_sold'])
+            y_test = test['item_quantity_sold'].values
+            X_test['date_sold']=X_test['date_sold'].map(dt.datetime.toordinal)
+            validation=pd.DataFrame({'date_sold':w.index,'item_quantity_sold':w['item_quantity_sold'],'item_quantity_before_sales':w['item_quantity_before_sales'],'item_quantity_after_sales':w['item_quantity_after_sales']})
+            X_valid = validation.drop(columns=['item_quantity_sold'])
+            y_valid = validation['item_quantity_sold'].values
+            X_valid['date_sold']=X_valid['date_sold'].map(datetime.datetime.toordinal)
+            model_pipeline=RandomForestRegressor(n_estimators=10, oob_score=False, random_state=10)
+
+            mp=model_pipeline.fit(X_train,y_train)
+            pred_test_rf=mp.predict(X_test)
+            pred_valid_rf = mp.predict(X_valid)
+            a=test['date_sold'].dt.month.tolist()
+            j=test['date_sold'].dt.year.tolist()
+            k=validation['date_sold'].dt.month.tolist()
+            s=validation['date_sold'].dt.year.tolist()
+            position=[]
+            count=0
+            bulan=[1,2,3,4,5,6,7,8,9,10,11,12]
+            
+            new_pred=[]
+        
+
+            for b in bulan:
+                counter=0
+                positions=[]
+                for x in a:
+                    if x==b:
+                        positions.append(counter)
+                    counter=counter+1
+                sumofval=0
+                averageval=0
+                for x in positions:
+                    sumofval=sumofval+pred_test_rf[x]
+                if len(positions)!=0:
+                    averageval=(sumofval/len(positions))
+                new_pred.append(averageval)       
+        
+ 
+            new_test=[]
+            for x in bulan:
+                counter=0
+                positions=[]
+                for b in a:
+                    if x==b:
+                        positions.append(counter)
+                    counter=counter+1
+                sumofval=0
+                averageval=0
+                for x in positions:
+                    sumofval=sumofval+y_test[x]
+                if len(positions)!=0:
+                    averageval=(sumofval/len(positions))
+                new_test.append(averageval)     
+
+
+            new_valid=[]
+            
+            for x in bulan:
+                counter=0
+                positions=[]
+                for b in k:
+                    if x==b:
+                        positions.append(counter)
+                    counter=counter+1
+                sumofval=0
+                averageval=0
+                for x in positions:
+                    sumofval=sumofval+pred_valid_rf[x]
+                if len(positions)!=0:
+                    averageval=(sumofval/len(positions))
+                new_valid.append(averageval)     
+
+                
+            for x in a:
+                if x == month:
+                    position.append(count)
+                count=count+1
+            sumval=0
+            average=0
+            for x in position:
+                    sumval=sumval+pred_test_rf[x]
+                    
+            if len(position)!=0:
+                average=(sumval/len(position))
+            
+            if average<50:
+                suggested=(average+50)/2
+            if average>50:
+                suggested= (average+100)/2
+            average=int(average)
+            suggested=int(suggested)
+            months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
+            new_ytest=[]
+            newpredtest=[]
+            new_validt=[]
+            for x in months:
+                new_ytest.append(x+''+str(j[0]))
+                newpredtest.append(x+''+str(j[0]+1))
+                new_validt.append(x+''+str(s[0]+1))
+
+            figure1 = go.Figure()
+            scatter1 = go.Scatter(x=new_ytest , y=new_test, mode='lines+markers',name="Historical Sales")
+            scatter2= go.Scatter(x=new_validt, y=new_valid,mode='lines+markers',name="Historical Predicted Sales")
+            scatter3=go.Scatter(x=newpredtest, y=new_pred,mode='lines+markers',name="Predicted Sales")
+            figure1.add_trace(scatter1)
+            figure1.add_trace(scatter2)
+            figure1.add_trace(scatter3)
+            figure1.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
+            fig1= plot(figure1,output_type='div')
+
+
+
+        figure = go.Figure()
+        scatter = go.Scatter(x=y.index, y=y['item_quantity_sold'], mode='lines+markers')
+        figure.add_trace(scatter)
+        figure.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
+        fig= plot(figure,output_type='div')
+
+
+
+
+        
+
+
 
 
     
