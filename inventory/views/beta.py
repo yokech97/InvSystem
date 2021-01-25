@@ -3,9 +3,10 @@ import pandas as pd
 import math
 # from sklearn.compose import ColumnTransformer 
 # from sklearn.impute import SimpleImputer
+from django.shortcuts import render, redirect, get_object_or_404
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
-
+from django.contrib import messages
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 from math import sqrt
@@ -292,46 +293,31 @@ def report(request):
     quantity_available=pd.DataFrame.from_records(item_status.objects.filter(item_code=data).values('item_quantity_available'))
     quantity_left=quantity_available['item_quantity_available'][0]
     sales=pd.DataFrame.from_records(sales_record.objects.filter(item_code=data).values('record_id','item_quantity_before_sales','item_quantity_sold','item_quantity_after_sales','date_sold','item_code_id'))
-    cols = ['record_id','item_code_id']
-    sales.drop(cols, axis=1, inplace=True)
 
-    sales['date_sold'] = pd.to_datetime(sales['date_sold'],format='%Y/%m/%d')
-    max_year=pd.DataFrame.from_records(sales_record.objects.filter(item_code=data).values('date_sold','record_id').latest('date_sold'),index=[0])
-    max_year['date_sold']=pd.to_datetime(max_year['date_sold'],format='%Y/%m/%d')
-    max_year['year']=max_year['date_sold'].dt.year
-    max_year=max_year.reset_index()
-    sales = sales.reset_index()
-    sales = sales.set_index('date_sold')
-    
-    # print(sales.index)
-    y = sales
     # for x in max_year['year']:
     #     year=max_year['year']
         # if max_year['year']!=year:
         #     return year
     # w=y['2015-1':'2015-12']
     # print(max_year)
-    if y.empty==True:
-        figure = go.Figure()
-        figure.update_layout(title='Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
-        fig= plot(figure,output_type='div')
-        figure1 = go.Figure()
-        figure1.update_layout(title='Prediction of Total Item Quantity Sold over Time',xaxis_title='Time Stamp', yaxis_title='Item Quantity Sold')
-        fig1= plot(figure1,output_type='div')        
-        average=0
-        suggested=0
-        months=['January', 'February', 'March', 'April','May','June','July','August','September','October','November','December']
-        context ={
-        'fig':fig,
-        'fig1':fig1,
-        'form': form,
-        'data':data,
-        'month':months[month-1],
-        'average':average,
-        'suggested':suggested
-        }
-        return render(request, 'inv/home.html',context)
+    if sales.empty==True:
+    
+        
+         return redirect('/', messages.error(request, 'Sales Data is not found', 'alert-danger'))
     else:
+        cols = ['record_id','item_code_id']
+        sales.drop(cols, axis=1, inplace=True)
+
+        sales['date_sold'] = pd.to_datetime(sales['date_sold'],format='%Y/%m/%d')
+        max_year=pd.DataFrame.from_records(sales_record.objects.filter(item_code=data).values('date_sold','record_id').latest('date_sold'),index=[0])
+        max_year['date_sold']=pd.to_datetime(max_year['date_sold'],format='%Y/%m/%d')
+        max_year['year']=max_year['date_sold'].dt.year
+        max_year=max_year.reset_index()
+        sales = sales.reset_index()
+        sales = sales.set_index('date_sold')
+        
+        # print(sales.index)
+        y = sales
         d=max_year['year'][0]
         w=y[str(d-1)+'-1':str(d-1)+'-12']
         z=y[str(max_year['year'][0]):]
