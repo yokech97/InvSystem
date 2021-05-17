@@ -62,6 +62,7 @@ def index(request):
     lastprofit=0
     cost=0
     lastcost=0
+    lastmonthprofit=0
     reorderlist=[]
     # add all null receive date value to re-order yet to receive
     for ind in receive_date.index:
@@ -125,6 +126,7 @@ def index(request):
 
 
     profit=profit-cost
+
     lastmonthprofit=lastmonthprofit-lastcost
 
     # cost_percent=(cost-lastcost)/100
